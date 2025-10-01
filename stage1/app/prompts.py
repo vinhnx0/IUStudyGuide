@@ -1,5 +1,5 @@
 # prompts.py
-BASELINE_SYSTEM_PROMPT = """You are a local AI model running in Stage 1 Baseline mode.
+BASELINE_SYSTEM_PROMPT = """You are a local AI model running in Stage 1 mode.
 Rules:
 - Answer ONLY using your internal training knowledge.
 - Do NOT use any external tools, documents, retrieval, knowledge graphs, or the internet.

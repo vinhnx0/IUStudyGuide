@@ -1,4 +1,4 @@
-# Stage 1 Baseline (Local LLM via Ollama)
+# Stage 1 (Local LLM via Ollama)
 
 Minimal, production-ready baseline that answers using **only model’s internal knowledge**. No RAG, no tools. Deterministic-ish via fixed params and `seed`.
 
@@ -13,11 +13,11 @@ Got it ✅ Below are two complete `README.md` files you can copy directly.
 
 ---
 
-## `stage1_baseline/README.md`
+## `stage1/README.md`
 
-# Stage 1 Baseline – Local LLM with Ollama
+# Stage 1 – Local LLM with Ollama
 
-This project implements **Stage 1 (Baseline)** of the thesis experiment:
+This project implements **Stage 1** of the thesis experiment:
 
 - Run a **local LLM via Ollama** (e.g., `llama3`)
 - **No retrieval / RAG / KG / tools**
@@ -29,7 +29,7 @@ This project implements **Stage 1 (Baseline)** of the thesis experiment:
 
 ```v
 
-stage1_baseline/
+stage1/
    app/          # FastAPI + inference logic
    cli/          # Command-line interface
    eval/         # Evaluation harness
@@ -99,7 +99,7 @@ python -m venv .venv
 ### Install dependencies
 
 ```bash
-pip install -r stage1_baseline/requirements.txt
+pip install -r stage1/requirements.txt
 ```
 
 
@@ -109,7 +109,7 @@ pip install -r stage1_baseline/requirements.txt
 ### Start server
 
 ```bash
-cd stage1_baseline
+cd stage1
 python -m uvicorn app.api:app --reload
 ```
 
@@ -136,11 +136,11 @@ curl -s http://127.0.0.1:8000/v1/ask \
 ## 💻 Run CLI
 
 ```bash
-python -m stage1_baseline.cli.ask --prompt "Who is the CEO of SpaceX?" --language en
+python -m stage1.cli.ask --prompt "Who is the CEO of SpaceX?" --language en
 ```
 
 * Prints model response
-* Appends metadata JSON to `stage1_baseline/eval/cli_history.jsonl`
+* Appends metadata JSON to `stage1/eval/cli_history.jsonl`
 
 
 ## 📊 Run Evaluation Harness
@@ -148,21 +148,21 @@ python -m stage1_baseline.cli.ask --prompt "Who is the CEO of SpaceX?" --languag
 Run batch evaluation with provided sample prompts:
 
 ```bash
-python -m stage1_baseline.eval.run_eval \
-  --input stage1_baseline/eval/sample_prompts.jsonl \
+python -m stage1.eval.run_eval \
+  --input stage1/eval/sample_prompts.jsonl \
   --model llama3 --temperature 0.2 --seed 42
 ```
 
 Output:
 
-* File: `stage1_baseline/eval/outputs_<timestamp>.jsonl`
+* File: `stage1/eval/outputs_<timestamp>.jsonl`
 * Console summary: number of prompts, avg latency, unknown counts
 
 
 ## 🧪 Run Tests
 
 ```bash
-pytest -q stage1_baseline/tests
+pytest -q stage1/tests
 ```
 
 

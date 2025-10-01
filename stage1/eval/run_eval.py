@@ -21,7 +21,7 @@ def write_jsonl(path: str, rows: List[Dict[str, Any]]):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Stage1 baseline evaluation")
+    parser = argparse.ArgumentParser(description="Run Stage1 evaluation")
     parser.add_argument("--input", default="eval/sample_prompts.jsonl")
     parser.add_argument("--output", default=None)
     parser.add_argument("--model", default=None)

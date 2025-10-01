@@ -14,13 +14,13 @@ class Settings(BaseSettings):
     request_timeout_s: int = Field(default=60)
 
     # API
-    api_title: str = Field(default="Stage1 Baseline API")
+    api_title: str = Field(default="Stage1 API")
     api_version: str = Field(default="1.0.0")
 
     # Logging
     log_level: str = Field(default="INFO")
     log_json: bool = Field(default=True)
-    service_name: str = Field(default="stage1_baseline")
+    service_name: str = Field(default="stage1")
 
     class Config:
         env_file = ".env"
