@@ -1,0 +1,47 @@
+paths:
+  data_dir: "data"
+  storage_dir: "storage"
+  faiss_index: "storage/faiss.index"
+  bm25_index: "storage/bm25.pkl"
+  chunks_jsonl: "storage/chunks.jsonl"
+  metadata_jsonl: "storage/metadata.jsonl"
+  aliases_json: "storage/aliases.json"
+
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 64
+  normalize_embeddings: true
+
+chunking:
+  chunk_size_words: 1000
+  chunk_overlap_words: 120
+  heading_respect: true
+  heading_patterns:
+    - "^# .+"
+    - "^## .+"
+    - "^[A-Z][A-Za-z0-9\\s]{0,60}:$"
+
+retrieval:
+  top_k: 8
+  use_bm25: true
+  mmr_lambda: 0.5
+  mmr_candidates: 20
+  fuzzy_threshold: 85
+
+vector_store:
+  backend: "faiss"  # options: faiss (default), chroma (not implemented in this baseline)
+
+llm:
+  default_backend: "gemini"
+  gemini:
+    model: "gemini-2.0-flash" 
+    max_output_tokens: 600
+    temperature: 0.2
+
+logging:
+  level: "INFO"
+
+evaluation:
+  qs_file: "eval/qs.jsonl"
+  golden_file: "eval/golden.csv"
+  report_file: "eval/report.json"
