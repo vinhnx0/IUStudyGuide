@@ -147,7 +147,7 @@ Run batch evaluation with provided sample prompts:
 
 ```bash
 python -m stage1.eval.run_eval \
-  --input stage1/eval/sample_prompts.jsonl \
+  --input stage1/eval/prompts.jsonl \
   --model qwen3:8b --temperature 0.2 --seed 42
 ```
 
