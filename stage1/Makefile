@@ -12,7 +12,7 @@ setup:
 
 pull:
 	@echo "Ensure Ollama is installed: https://ollama.com/download"
-	ollama pull llama3
+	ollama pull qwen3:8b
 
 api:
 	$(PY) -m uvicorn app.api:app --reload

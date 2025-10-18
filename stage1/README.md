@@ -7,13 +7,11 @@ Minimal, production-ready baseline that answers using **only model’s internal 
 1. Install **Ollama**: https://ollama.com/download
 2. Pull a chat-capable model (configurable):
    ```bash
-   ollama pull llama3
-
-Got it ✅ Below are two complete `README.md` files you can copy directly.
+   ollama pull qwen3:8b
 
 ---
 
-## `stage1/README.md`
+## `Thesis/stage1/README.md`
 
 # Stage 1 – Local LLM with Ollama
 
@@ -28,15 +26,15 @@ This project implements **Stage 1** of the thesis experiment:
 ## 📦 Project Structure
 
 ```v
-
-stage1/
-   app/          # FastAPI + inference logic
-   cli/          # Command-line interface
-   eval/         # Evaluation harness
-   tests/        # Smoke tests
-   requirements.txt
-   Makefile
-   README.md     # This file
+Thesis/
+  stage1/
+    app/          # FastAPI + inference logic
+    cli/          # Command-line interface
+    eval/         # Evaluation harness
+    tests/        # Smoke tests
+    requirements.txt
+    Makefile
+    README.md     # This file
 
 ````
 
@@ -57,13 +55,13 @@ stage1/
 
 3. **Pull a model (example: llama3)**  
    ```bash
-   ollama pull llama3
+   ollama pull qwen3:8b
    ```
 
 4. **Quick test Ollama**
 
    ```bash
-   ollama run llama3 "Hello, how are you?"
+   ollama run qwen3:8b "Hello, how are you?"
    ```
 
 
@@ -150,7 +148,7 @@ Run batch evaluation with provided sample prompts:
 ```bash
 python -m stage1.eval.run_eval \
   --input stage1/eval/sample_prompts.jsonl \
-  --model llama3 --temperature 0.2 --seed 42
+  --model qwen3:8b --temperature 0.2 --seed 42
 ```
 
 Output:

@@ -8,7 +8,7 @@ from pathlib import Path
 log = get_logger("cli")
 
 def main():
-    parser = argparse.ArgumentParser(description="Stage1 CLI (Ollama)")
+    parser = argparse.ArgumentParser(description="Stage1 CLI (qwen3:8b)")
     parser.add_argument("--prompt", required=True, help="User prompt")
     parser.add_argument("--language", default="auto", choices=["auto", "vi", "en"])
     parser.add_argument("--temperature", type=float, default=None)

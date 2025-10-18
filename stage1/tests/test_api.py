@@ -6,7 +6,7 @@ from app import api as api_module
 class DummyEngine:
     def generate(self, prompt, language="auto", temperature=None, max_tokens=None, seed=None, model=None, timeout=None):
         return ("Hello baseline.", {
-            "model": model or "llama3",
+            "model": model or "qwen3:8b",
             "temperature": temperature if temperature is not None else 0.2,
             "seed": seed if seed is not None else 42,
             "max_tokens": max_tokens if max_tokens is not None else 512,
@@ -18,7 +18,7 @@ def test_api_schema_and_metadata(monkeypatch):
     # Patch the singleton engine used by the API
     monkeypatch.setattr(api_module, "engine", DummyEngine())
     client = TestClient(app)
-    payload = {"prompt": "Ping?", "language": "en", "temperature": 0.2, "max_tokens": 64, "seed": 42, "model": "llama3"}
+    payload = {"prompt": "Ping?", "language": "en", "temperature": 0.2, "max_tokens": 64, "seed": 42, "model": "qwen3:8b"}
     r = client.post("/v1/ask", json=payload)
     assert r.status_code == 200
     data = r.json()
