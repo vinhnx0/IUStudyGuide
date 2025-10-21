@@ -146,8 +146,8 @@ python -m stage1.cli.ask --prompt "Who is the CEO of SpaceX?" --language en
 Run batch evaluation with provided sample prompts:
 
 ```bash
-python -m stage1.eval.run_eval \
-  --input stage1/eval/prompts.jsonl \
+python -m eval.run_eval \
+  --input eval/prompts.jsonl \
   --model qwen3:8b --temperature 0.2 --seed 42
 ```
 

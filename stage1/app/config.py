@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     temperature: float = Field(default=0.2)
     max_tokens: int = Field(default=512)
     seed: int = Field(default=42)
-    request_timeout_s: int = Field(default=60)
+    request_timeout_s: int = Field(default=180)
 
     # API
     api_title: str = Field(default="Stage1 API")

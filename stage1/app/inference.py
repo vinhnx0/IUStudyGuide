@@ -102,8 +102,15 @@ class InferenceEngine:
                 ptoks = estimate_tokens(sys_prompt + prompt)
                 otoks = estimate_tokens(response)
                 usage = {"tokens_prompt": ptoks, "tokens_output": otoks, "total_tokens": ptoks + otoks}
+        except requests.exceptions.ReadTimeout:
+            response = "Request to model timed out. The model may be busy or the response is taking too long."
+            usage = {"tokens_prompt": 0, "tokens_output": 0, "total_tokens": 0}
         except requests.exceptions.ConnectionError:
-            response = "Ollama is not reachable at {}. Please ensure Ollama is running and the model is pulled.".format(settings.ollama_host)
+            response = "Model host is not reachable at {}. Please ensure the model host (Ollama) is running and the model is pulled.".format(settings.ollama_host)
+            usage = {"tokens_prompt": 0, "tokens_output": 0, "total_tokens": 0}
+        except requests.exceptions.RequestException as e:
+            # Catch-all for other request-related errors
+            response = f"Request error when calling model: {e}"
             usage = {"tokens_prompt": 0, "tokens_output": 0, "total_tokens": 0}
         except RuntimeError as e:
             response = f"{e}"
