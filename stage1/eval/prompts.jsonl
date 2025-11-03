@@ -1,20 +1,67 @@
-{"id":"Q01_IU","prompt":"Tỷ lệ sinh viên/giảng viên của khoa/ngành mà con tôi quan tâm là bao nhiêu?","lang":"vi"}
-{"id":"Q02_IU","prompt":"Trường có liên kết đào tạo quốc tế (chương trình 2+2, 4+0,...) với những trường nào? Chất lượng và cơ hội chuyển tiếp ra sao?","lang":"vi"}
-{"id":"Q03_IU","prompt":"Cấu trúc chương trình học (số lượng tín chỉ, tỷ lệ lý thuyết/thực hành, môn chuyên ngành) có gì nổi bật so với các trường khác?","lang":"vi"}
-{"id":"Q04_IU","prompt":"Yêu cầu về ngoại ngữ đối với sinh viên tốt nghiệp là gì (ví dụ: TOEIC, IELTS, TOEFL tối thiểu)?","lang":"vi"}
-{"id":"Q05_IU","prompt":"Cơ hội để sinh viên tham gia nghiên cứu khoa học, thực tập hoặc các dự án thực tế trong quá trình học là như thế nào?","lang":"vi"}
-{"id":"Q06_IU","prompt":"Trình độ học vấn (Tiến sĩ, Thạc sĩ) và kinh nghiệm thực tế của đội ngũ giảng viên trong ngành này là như thế nào?","lang":"vi"}
-{"id":"Q07_IU","prompt":"Trường có các dịch vụ hỗ trợ học thuật nào cho sinh viên (ví dụ: trung tâm tiếng Anh, trung tâm hướng nghiệp, tư vấn học tập)?","lang":"vi"}
-{"id":"Q08_IU","prompt":"Môi trường học tập và văn hóa sinh viên tại trường có tính quốc tế, năng động, hay chú trọng vào điều gì nhất?","lang":"vi"}
-{"id":"Q09_IU","prompt":"Cơ sở vật chất, đặc biệt là phòng thí nghiệm, thư viện, khu tự học có đáp ứng tốt cho việc học tập không?","lang":"vi"}
-{"id":"Q10_IU","prompt":"Tỷ lệ sinh viên có việc làm trong vòng 6-12 tháng sau khi tốt nghiệp là bao nhiêu? Mức lương khởi điểm trung bình là bao nhiêu?","lang":"vi"}
-{"id":"Q11_IU","prompt":"Các đối tác doanh nghiệp lớn của trường là những công ty nào? Sinh viên có cơ hội thực tập hoặc tham gia các chương trình tuyển dụng sớm không?","lang":"vi"}
-{"id":"Q12_IU","prompt":"Trường có phòng/bộ phận Hỗ trợ Việc làm và Hướng nghiệp nào không? Các hoạt động hỗ trợ cụ thể là gì?","lang":"vi"}
-{"id":"Q13_IU","prompt":"Tổng chi phí học tập (học phí, chi phí tài liệu,...) cho toàn khóa học (4 năm) là khoảng bao nhiêu? Có tăng theo từng năm không?","lang":"vi"}
-{"id":"Q14_IU","prompt":"Trường có những loại học bổng đầu vào (tuyển sinh) và học bổng duy trì nào? Điều kiện để đạt được và duy trì học bổng là gì?","lang":"vi"}
-{"id":"Q15_IU","prompt":"Có các chính sách hỗ trợ tài chính, vay vốn sinh viên hoặc trả góp học phí nào không?","lang":"vi"}
-{"id":"Q16_IU","prompt":"Trường có ký túc xá không? Chất lượng, chi phí và mức độ an toàn như thế nào?","lang":"vi"}
-{"id":"Q17_IU","prompt":"Trường có các câu lạc bộ, đội nhóm hoạt động mạnh mẽ nào để sinh viên phát triển kỹ năng mềm, giao lưu văn hóa và thể chất?","lang":"vi"}
-{"id":"Q18_IU","prompt":"Các dịch vụ y tế và an ninh trong khuôn viên trường được đảm bảo như thế nào?","lang":"vi"}
-{"id":"Q19_IU","prompt":"Trường có các chương trình hỗ trợ sinh viên quốc tế về mặt ngôn ngữ, văn hóa và học tập không?","lang":"vi"}
-{"id":"Q20_IU","prompt":"Mạng lưới cựu sinh viên của trường có mạnh không? Họ thường làm việc ở những công ty hoặc ngành nghề nào?","lang":"vi"}
+[
+  // NHÓM 1: GIỚI THIỆU TRƯỜNG
+  {"id":"Q01_IU","prompt":"Trường Đại học Quốc tế – Đại học Quốc gia TP.HCM có phải là trường công lập không?","lang":"vi"},
+  {"id":"Q02_IU","prompt":"Bằng tốt nghiệp của trường có được quốc tế công nhận không?","lang":"vi"},
+  {"id":"Q03_IU","prompt":"Trường có liên kết với những đại học nước ngoài nào?","lang":"vi"},
+  {"id":"Q04_IU","prompt":"Uy tín của trường trong hệ thống Đại học Quốc gia TP.HCM ra sao?","lang":"vi"},
+  {"id":"Q05_IU","prompt":"Sinh viên sau khi tốt nghiệp IU có dễ dàng học tiếp cao học ở nước ngoài không?","lang":"vi"},
+
+  // NHÓM 2: NGÀNH HỌC & CHƯƠNG TRÌNH ĐÀO TẠO
+  {"id":"Q06_IU","prompt":"Trường hiện có những ngành đào tạo nào?","lang":"vi"},
+  {"id":"Q07_IU","prompt":"Ngành nào của IU đang có điểm chuẩn cao nhất hiện nay?","lang":"vi"},
+  {"id":"Q08_IU","prompt":"Các ngành học được chia thành mấy nhóm chính như kinh tế, kỹ thuật, công nghệ?","lang":"vi"},
+  {"id":"Q09_IU","prompt":"Các môn học trong chương trình được giảng dạy bằng tiếng Anh hoàn toàn hay song ngữ?","lang":"vi"},
+  {"id":"Q10_IU","prompt":"Sinh viên có được chọn môn học tự chọn hoặc chuyển ngành không?","lang":"vi"},
+  {"id":"Q11_IU","prompt":"Chương trình đào tạo 2+2 hoặc 3+1 khác nhau như thế nào?","lang":"vi"},
+  {"id":"Q12_IU","prompt":"Các môn học có nhiều bài tập thực hành, dự án hay chủ yếu là lý thuyết?","lang":"vi"},
+  {"id":"Q13_IU","prompt":"Có môn học nào được giảng dạy bởi giảng viên từ các trường đối tác nước ngoài không?","lang":"vi"},
+  {"id":"Q14_IU","prompt":"Sinh viên có thể học vượt để tốt nghiệp sớm không?","lang":"vi"},
+  {"id":"Q15_IU","prompt":"Trường có dạy các kỹ năng mềm, kỹ năng thuyết trình và tư duy phản biện không?","lang":"vi"},
+  {"id":"Q16_IU","prompt":"Sinh viên có được tham gia nghiên cứu khoa học hoặc dự án quốc tế trong thời gian học không?","lang":"vi"},
+  {"id":"Q17_IU","prompt":"Các ngành học tại IU có cập nhật theo xu hướng mới như AI, Dữ liệu, Fintech, ESG không?","lang":"vi"},
+
+  // NHÓM 3: GIẢNG VIÊN & CHẤT LƯỢNG GIẢNG DẠY
+  {"id":"Q18_IU","prompt":"Tỷ lệ giảng viên nước ngoài tại IU là bao nhiêu phần trăm?","lang":"vi"},
+  {"id":"Q19_IU","prompt":"Giảng viên của trường có bằng cấp từ các nước phát triển không?","lang":"vi"},
+  {"id":"Q20_IU","prompt":"Sinh viên có được tương tác và đặt câu hỏi với giảng viên thường xuyên không?","lang":"vi"},
+  {"id":"Q21_IU","prompt":"Giảng viên có hỗ trợ sinh viên ngoài giờ học không?","lang":"vi"},
+  {"id":"Q22_IU","prompt":"Trường có cơ chế đánh giá giảng viên dựa trên phản hồi của sinh viên không?","lang":"vi"},
+
+  // NHÓM 4: HỌC PHÍ, HỌC BỔNG & HỖ TRỢ TÀI CHÍNH
+  {"id":"Q23_IU","prompt":"Học phí trung bình một năm của IU là bao nhiêu?","lang":"vi"},
+  {"id":"Q24_IU","prompt":"Học phí có tăng theo từng năm học không?","lang":"vi"},
+  {"id":"Q25_IU","prompt":"Trường có những loại học bổng nào dành cho tân sinh viên?","lang":"vi"},
+  {"id":"Q26_IU","prompt":"Điều kiện để duy trì học bổng trong các năm tiếp theo là gì?","lang":"vi"},
+  {"id":"Q27_IU","prompt":"Phụ huynh có thể đăng ký vay tín dụng sinh viên hoặc hỗ trợ học phí từ trường không?","lang":"vi"},
+
+  // NHÓM 5: CƠ HỘI QUỐC TẾ & CHUYỂN TIẾP
+  {"id":"Q28_IU","prompt":"Sinh viên có thể học trao đổi ở nước ngoài trong thời gian học tại IU không?","lang":"vi"},
+  {"id":"Q29_IU","prompt":"Khi học chương trình liên kết 2+2, bằng do trường nào cấp?","lang":"vi"},
+  {"id":"Q30_IU","prompt":"Trường có những đối tác quốc tế cụ thể nào ở Mỹ, Úc, Anh, Nhật?","lang":"vi"},
+  {"id":"Q31_IU","prompt":"Điều kiện chuyển tiếp sang đại học nước ngoài là gì?","lang":"vi"},
+  {"id":"Q32_IU","prompt":"Trường có hỗ trợ sinh viên trong thủ tục chuyển tiếp và xin visa du học không?","lang":"vi"},
+
+  // NHÓM 6: VIỆC LÀM & THỰC TẬP
+  {"id":"Q33_IU","prompt":"Tỷ lệ sinh viên có việc làm sau khi tốt nghiệp là bao nhiêu phần trăm?","lang":"vi"},
+  {"id":"Q34_IU","prompt":"Trường có trung tâm hỗ trợ việc làm hay hướng nghiệp cho sinh viên không?","lang":"vi"},
+  {"id":"Q35_IU","prompt":"Sinh viên có được hỗ trợ tìm nơi thực tập phù hợp với ngành học không?","lang":"vi"},
+  {"id":"Q36_IU","prompt":"Những doanh nghiệp hoặc tập đoàn nào thường tuyển sinh viên IU?","lang":"vi"},
+  {"id":"Q37_IU","prompt":"Trường có tổ chức ngày hội việc làm hoặc career fair hằng năm không?","lang":"vi"},
+  {"id":"Q38_IU","prompt":"Sinh viên IU có cơ hội làm việc tại các công ty nước ngoài hoặc đa quốc gia không?","lang":"vi"},
+
+  // NHÓM 7: CƠ SỞ VẬT CHẤT & ĐỜI SỐNG SINH VIÊN
+  {"id":"Q39_IU","prompt":"Trường nằm ở khu vực nào của TP.HCM?","lang":"vi"},
+  {"id":"Q40_IU","prompt":"Cơ sở vật chất, phòng học và phòng lab của IU có hiện đại không?","lang":"vi"},
+  {"id":"Q41_IU","prompt":"Sinh viên có ký túc xá trong khuôn viên trường không?","lang":"vi"},
+  {"id":"Q42_IU","prompt":"Trường có khu thể thao, thư viện và phòng tự học cho sinh viên không?","lang":"vi"},
+  {"id":"Q43_IU","prompt":"IU có dịch vụ y tế hoặc tư vấn tâm lý dành cho sinh viên không?","lang":"vi"},
+  {"id":"Q44_IU","prompt":"Có nhiều câu lạc bộ, hoạt động ngoại khóa và cuộc thi học thuật trong trường không?","lang":"vi"},
+
+  // NHÓM 8: TIẾNG ANH & MÔI TRƯỜNG HỌC TẬP
+  {"id":"Q45_IU","prompt":"Trình độ tiếng Anh đầu vào yêu cầu của trường là gì, ví dụ IELTS hoặc TOEFL?","lang":"vi"},
+  {"id":"Q46_IU","prompt":"Trường có chương trình tiếng Anh dự bị cho sinh viên chưa đủ trình độ không?","lang":"vi"},
+  {"id":"Q47_IU","prompt":"Tất cả các môn học đều giảng dạy bằng tiếng Anh hay có môn bằng tiếng Việt?","lang":"vi"},
+  {"id":"Q48_IU","prompt":"Sinh viên có được hỗ trợ cải thiện kỹ năng viết học thuật và thuyết trình không?","lang":"vi"},
+  {"id":"Q49_IU","prompt":"Môi trường học tập ở IU có năng động, cởi mở và thân thiện không?","lang":"vi"},
+  {"id":"Q50_IU","prompt":"Sau khi tốt nghiệp, sinh viên có tự tin sử dụng tiếng Anh chuyên ngành trong công việc không?","lang":"vi"}
+]
