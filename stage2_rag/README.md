@@ -34,14 +34,18 @@ Alias Normalizer: auto + manual merge → aliases.json; exact → normalized →
 ## Quickstart
 
 ```bash
-# 0) Python & venv (Linux/Mac)
-python -m venv .venv && source .venv/bin/activate
-# On Windows:
-# python -m venv .venv && .\.venv\Scripts\activate
+# 0) Create a stage-local Python venv
+# Recommended: create one `stage2_rag/.venv` per-stage to avoid conflicts
+# On Windows (PowerShell):
+python -m venv .\stage2_rag\.venv
+.\stage2_rag\.venv\Scripts\Activate.ps1
+
+# On macOS / Linux:
+python -m venv stage2_rag/.venv && source stage2_rag/.venv/bin/activate
 
 # 1) Install deps
 cd stage2_rag
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # 2) Config & keys
 # edit .env to set OPENAI_API_KEY (if using OpenAI), OLLAMA_HOST if needed
@@ -50,53 +54,10 @@ pip install -r requirements.txt
 # 3) Ingest (scrape-ready docs placed under data/; any subfolders are fine)
 python -m app.cli ingest ..\data
 
-# 4) Ask via CLI (Ollama local backend as default)
-python -m app.cli ask "Điều kiện tiên quyết của Giải tích 1?" --k 8 --backend ollama --debug
-
-# 5) Start REST API
-uvicorn app.api:app --host 0.0.0.0 --port 8000
-
 # 6) Optional Simple Web UI (Streamlit)
 cd stage2_rag
 streamlit run app/web.py
 ```
-
-**Docker (optional)**
-
-```bash
-docker build -t stage2_rag .
-docker run --rm -p 8000:8000 -v $PWD/storage:/app/storage -v $PWD/data:/app/data --env-file .env stage2_rag
-```
-
----
-
-## CLI
-
-```bash
-# Build index from docs
-python -m app.cli ingest --path data/ --rebuild
-
-# Ask a question
-python -m app.cli ask "Giải tích 1 học kỳ mấy?" --k 8 --backend ollama --debug
-```
-
----
-
-## REST API
-
-* `POST /ask`
-
-  * **Request**: `{"query": str, "top_k": int=8, "backend": "ollama"|"openai", "lang": "auto"|"vi"|"en"}`
-  * **Response**:
-
-    ```json
-    {
-      "answer": "...",
-      "citations": [{"source":"...", "page":1, "url":null, "section":"..."}, ...],
-      "aliases": {"canonical":"Calculus I","matched":"Giai tich 1","method":"normalized_exact","confidence":0.97},
-      "debug": {...}  // if debug enabled
-    }
-    ```
 
 ---
 

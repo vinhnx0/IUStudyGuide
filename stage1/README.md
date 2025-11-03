@@ -67,37 +67,48 @@ Thesis/
 
 ## 🚀 Setup
 
-From project root (`Thesis/`):
+From project root (`Thesis/`), create and install into a venv located in `stage1/.venv`.
+
+### Create venv
+
+*Windows PowerShell*
+
+```powershell
+python -m venv .\stage1\.venv
+```
+
+*Linux / macOS*
 
 ```bash
-# Create venv
-python -m venv .venv
+python -m venv stage1/.venv
 ```
 
 ### Activate venv
 
 * **Windows PowerShell**
 
-  ```powershell
-  .venv\Scripts\Activate.ps1
-  ```
+```powershell
+.\stage1\.venv\Scripts\Activate.ps1
+```
 
-  If you see a policy error:
+If you see a policy error:
 
-  ```powershell
-  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-  ```
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 * **Linux / macOS**
 
-  ```bash
-  source .venv/bin/activate
-  ```
+```bash
+source stage1/.venv/bin/activate
+```
 
 ### Install dependencies
 
-```bash
-pip install -r stage1/requirements.txt
+With the stage venv active:
+
+```powershell
+python -m pip install -r stage1/requirements.txt
 ```
 
 
