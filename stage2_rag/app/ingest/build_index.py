@@ -8,6 +8,14 @@ import faiss
 import numpy as np
 from tqdm import tqdm
 
+def _abs_path(p: str | Path) -> Path:
+    """Resolve relative paths from the project root (stage2_rag)."""
+    p = Path(p)
+    if p.is_absolute():
+        return p
+    # build_index.py → app/ingest → parents[2] == stage2_rag/
+    return (Path(__file__).resolve().parents[2] / p).resolve()
+
 from app.ingest.loaders import dispatch_load
 from app.ingest.preprocess import preprocess_text
 from app.retriever.embedder import load_embedder, embed_texts
@@ -21,6 +29,7 @@ class IndexBuilder:
         self.embedder = load_embedder(cfg["embedding"]["model_name"], cfg["embedding"]["normalize_embeddings"])
 
     def build(self, data_dir: Path, rebuild: bool = False) -> None:
+        data_dir = _abs_path(data_dir)
         storage_dir = Path(self.paths["storage_dir"])
         storage_dir.mkdir(parents=True, exist_ok=True)
         chunks_path = Path(self.paths["chunks_jsonl"])
@@ -61,6 +70,12 @@ class IndexBuilder:
                     page=page,
                     url=url,
                     section_hint=source_name,
+                    method=self.cfg["chunking"].get("method", "words"),
+                    sentences_per_chunk=int(self.cfg["chunking"].get("sentences_per_chunk", 3)),
+                    overlap_sentences=int(self.cfg["chunking"].get("overlap_sentences", 1)),
+                    enrich=bool(self.cfg.get("metadata", {}).get("enrich", False)),
+                    keywords_per_chunk=int(self.cfg.get("metadata", {}).get("keywords_per_chunk", 6)),
+                    hypotheticals_per_chunk=int(self.cfg.get("metadata", {}).get("hypotheticals_per_chunk", 2)),
                 )
                 for it in items:
                     f.write(json.dumps(it, ensure_ascii=False) + "\n")

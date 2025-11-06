@@ -46,7 +46,12 @@ class RAGPipeline:
         blocks = []
         for d in docs:
             meta = d.get("metadata", {})
-            header = f"[Source: {meta.get('source')} | section: {meta.get('section_path')} | page: {meta.get('page')}]"
+            header = (
+                f"[Source: {meta.get('source')} | section: {meta.get('section_path')} | page: {meta.get('page')}"
+                + (f" | title: {meta.get('title')}" if meta.get('title') else "")
+                + (f" | keywords: {', '.join(meta.get('keywords', []))}" if meta.get('keywords') else "")
+                + "]"
+            )
             blocks.append(header + "\n" + d["text"])
         return "\n\n---\n\n".join(blocks)
 

@@ -1,47 +1,76 @@
+# -------------------- PATH SETTINGS --------------------
 paths:
-  data_dir: "data"
-  storage_dir: "storage"
-  faiss_index: "storage/faiss.index"
-  bm25_index: "storage/bm25.pkl"
-  chunks_jsonl: "storage/chunks.jsonl"
-  metadata_jsonl: "storage/metadata.jsonl"
-  aliases_json: "storage/aliases.json"
+  # Data folder is sibling to stage2_rag
+  data_dir: "../data"
 
+  # All generated artifacts will be stored inside ./storage
+  storage_dir: "./storage"
+
+  # Derived files (auto-created)
+  chunks_jsonl: "./storage/chunks.jsonl"
+  faiss_index: "./storage/faiss.index"
+  bm25_index: "./storage/bm25.pkl"
+  aliases_json: "./storage/aliases.json"
+
+# -------------------- EMBEDDING MODEL --------------------
 embedding:
-  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  model_name: "AITeamVN/Vietnamese_Embedding_v2"
   batch_size: 64
   normalize_embeddings: true
 
+# -------------------- CHUNKING SETTINGS --------------------
 chunking:
+  method: "sentence"          # sentence | words
+  sentences_per_chunk: 3
+  overlap_sentences: 1
   chunk_size_words: 1000
   chunk_overlap_words: 120
-  heading_respect: true
-  heading_patterns:
-    - "^# .+"
-    - "^## .+"
-    - "^[A-Z][A-Za-z0-9\\s]{0,60}:$"
+  heading_patterns: []        # add regex patterns later if needed
 
+# -------------------- METADATA ENRICHMENT --------------------
+metadata:
+  enrich: true
+  keywords_per_chunk: 6
+  hypotheticals_per_chunk: 2
+
+# -------------------- RETRIEVAL SETTINGS --------------------
 retrieval:
-  top_k: 8
   use_bm25: true
-  mmr_lambda: 0.5
+  top_k: 6
+  mmr_lambda: 0.65
   mmr_candidates: 20
   fuzzy_threshold: 85
 
-vector_store:
-  backend: "faiss"  # options: faiss (default), chroma (not implemented in this baseline)
-
+# -------------------- LLM SETTINGS --------------------
 llm:
   default_backend: "gemini"
   gemini:
-    model: "gemini-2.0-flash" 
+    model: "gemini-2.0-flash-lite"
     max_output_tokens: 600
     temperature: 0.2
 
+# -------------------- LOGGING --------------------
 logging:
   level: "INFO"
 
-evaluation:
-  qs_file: "eval/qs.jsonl"
-  golden_file: "eval/golden.csv"
-  report_file: "eval/report.json"
+# -------------------- INGEST SETTINGS --------------------
+ingest:
+  sources:
+    - path: "../data"          # sibling to stage2_rag
+      type: "auto"             # loader detects by extension
+      recursive: true
+      include: ["*.pdf", "*.txt", "*.md", "*.docx"]
+
+# -------------------- EVALUATION SETTINGS --------------------
+eval:
+  # 10 means ~1 request every 6 seconds.
+  requests_per_minute: 10
+
+  # Fixed delay between items (seconds). If > 0, we wait this after each run.
+  fixed_delay_seconds: 2
+
+  # Retry & backoff
+  max_retries: 5
+  initial_backoff_seconds: 2
+  max_backoff_seconds: 60
+  jitter: true
