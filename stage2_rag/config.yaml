@@ -20,7 +20,7 @@ embedding:
 
 # -------------------- CHUNKING SETTINGS --------------------
 chunking:
-  method: "sentence"          # sentence | words
+  method: "words"          # sentence | words
   sentences_per_chunk: 3
   overlap_sentences: 1
   chunk_size_words: 1000
@@ -43,11 +43,17 @@ retrieval:
 
 # -------------------- LLM SETTINGS --------------------
 llm:
-  default_backend: "gemini"
-  gemini:
-    model: "gemini-2.0-flash-lite"
-    max_output_tokens: 600
-    temperature: 0.2
+  default_backend: "local"
+  model: "meta-llama-3.1-8b-instruct"
+  base_url: "http://localhost:1234/v1"
+  max_output_tokens: 600
+  temperature: 0.2
+  top_p: 0.9
+
+# -------------------- SYNTHESIS SETTINGS --------------------
+synthesis:
+  max_evidence_chars: 9000
+  max_chunk_chars: 1200
 
 # -------------------- LOGGING --------------------
 logging:

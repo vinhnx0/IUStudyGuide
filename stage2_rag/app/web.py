@@ -40,9 +40,7 @@ def main():
         resp = rag.ask(query, lang=lang, debug=debug)
         st.subheader("Answer")
         st.write(resp["answer"])
-        st.subheader("Citations")
-        for c in resp["citations"]:
-            st.write("- ", c)
+
         if debug:
             st.subheader("Debug")
             st.json(resp["debug"])
