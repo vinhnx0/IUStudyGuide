@@ -1,0 +1,612 @@
+{
+  "nodes": [
+    {
+      "id": "PE015IU",
+      "name": { "vi": "Triết học Mác-Lênin", "en": "Philosophy Marxist-Lenin" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Các môn tư tưởng chính trị"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"
+    },
+    {
+      "id": "PE016IU",
+      "name": { "vi": "Kinh tế chính trị Mác-Lênin", "en": "Marxist-Lenin Political Economy" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Các môn tư tưởng chính trị"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"
+    },
+    {
+      "id": "PE018IU",
+      "name": { "vi": "Lịch sử Đảng Cộng sản Việt Nam", "en": "History of Vietnamese Communist Party" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Các môn tư tưởng chính trị"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"
+    },
+    {
+      "id": "PE019IU",
+      "name": { "vi": "Tư tưởng Hồ Chí Minh", "en": "Ho Chi Minh’s Thoughts" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Các môn tư tưởng chính trị"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"
+    },
+    {
+      "id": "PE017IU",
+      "name": { "vi": "Chủ nghĩa xã hội khoa học", "en": "Scientific Socialism" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Các môn tư tưởng chính trị"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"
+    },
+    {
+      "id": "PE021IU",
+      "name": { "vi": "Pháp luật đại cương", "en": "General Law" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "MA001IU",
+      "name": { "vi": "Toán 1", "en": "Calculus 1" },
+      "credits": { "total": 4, "theory": 4, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": [1, 2],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT154IU",
+      "name": { "vi": "Đại số tuyến tính", "en": "Linear Algebra" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": [2, 3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "MA026IU",
+      "name": { "vi": "Xác suất thống kê và quá trình ngẫu nhiên", "en": "Probability Statistic and Random Process" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": [1, 2],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT151IU",
+      "name": { "vi": "Phương pháp thống kê", "en": "Statistical Methods" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": [2, 4],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT171IU",
+      "name": { "vi": "Thống kê nâng cao", "en": "Statistical Learning" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục đại cương", "Khoa học tự nhiên và xã hội"],
+      "language": "en",
+      "semester": [5, 7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "EN007IU",
+      "name": { "vi": "Tiếng Anh chuyên ngành 1 - Kỹ năng Viết", "en": "Academic English 1 - Writing skill" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Ngoại ngữ"],
+      "language": "en",
+      "semester": [1, 2, 3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "EN008IU",
+      "name": { "vi": "Tiếng Anh chuyên ngành 1 - Kỹ năng Nghe", "en": "Academic English 1 - Listening skill" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Ngoại ngữ"],
+      "language": "en",
+      "semester": [1, 2, 3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "EN012IU",
+      "name": { "vi": "Tiếng Anh chuyên ngành 2 - Kỹ năng Nói", "en": "Academic English 2 - Speaking skill" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Ngoại ngữ"],
+      "language": "en",
+      "semester": [1, 2, 3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "EN011IU",
+      "name": { "vi": "Tiếng Anh chuyên ngành 2 - Kỹ năng Viết", "en": "Academic English 2 - Writing skill" },
+      "credits": { "total": 2, "theory": 2, "lab": 0 },
+      "area": ["Kiến thức giáo dục đại cương", "Ngoại ngữ"],
+      "language": "en",
+      "semester": [1, 2, 3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "PT001IU",
+      "name": { "vi": "Giáo dục thể chất 1", "en": "Physical Training 1" },
+      "credits": { "total": 3, "theory": 0, "lab": 3 },
+      "area": ["Kiến thức giáo dục đại cương", "Giáo dục thể chất"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "PT002IU",
+      "name": { "vi": "Giáo dục thể chất 2", "en": "Physical Training 2" },
+      "credits": { "total": 3, "theory": 0, "lab": 3 },
+      "area": ["Kiến thức giáo dục đại cương", "Giáo dục thể chất"],
+      "language": "vi",
+      "semester": "all",
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT135IU",
+      "name": { "vi": "Khoa học dữ liệu", "en": "Introduction to Data Science" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [1, 2],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT149IU",
+      "name": { "vi": "Lập trình cơ bản", "en": "Fundamentals of Programming" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [2],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT069IU",
+      "name": { "vi": "Lập trình hướng đối tượng", "en": "Object-Oriented Programming" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [3],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT013IU",
+      "name": { "vi": "Cấu trúc dữ liệu và giải thuật", "en": "Algorithms and Data Structures" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [4, 6],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT079IU",
+      "name": { "vi": "Nguyên tắc của quản trị cơ sở dữ liệu", "en": "Principles of Database Management" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [4, 6],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT159IU",
+      "name": { "vi": "Trí tuệ nhân tạo", "en": "Artificial Intelligence" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [6, 8],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT140IU",
+      "name": { "vi": "Khái niệm cơ bản về bảo mật dữ liệu", "en": "Fundamental Concepts of Data Security" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức cơ sở ngành"],
+      "language": "en",
+      "semester": [5, 7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT136IU",
+      "name": { "vi": "Phân tích hồi quy", "en": "Regression Analysis" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [2, 4],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT137IU",
+      "name": { "vi": "Phân tích dữ liệu", "en": "Data Analysis" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [3, 5],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT138IU",
+      "name": { "vi": "Khoa học dữ liệu và trực quan hóa dữ liệu", "en": "Data Science and Data Visualization" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [4, 6],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT139IU",
+      "name": { "vi": "Tính toán khả năng mở rộng và phân bố", "en": "Scalable and Distributed Computing" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [5, 7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT160IU",
+      "name": { "vi": "Khai thác dữ liệu", "en": "Data Mining" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [6, 8],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT157IU",
+      "name": { "vi": "Học sâu", "en": "Deep Learning" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT172IU",
+      "name": { "vi": "Học máy", "en": "Machine Learning" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [6, 8],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT173IU",
+      "name": { "vi": "Phân tích dữ liệu lớn", "en": "Big Data Analytics" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức giáo dục chuyên nghiệp", "Kiến thức chuyên ngành"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT144IU",
+      "name": { "vi": "Phân Tích Quy Trình Nghiệp Vụ", "en": "Business Process Analysis" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT145IU",
+      "name": { "vi": "Hệ Thống Hỗ Trợ Quyết Định", "en": "Decision Support Systems" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT169IU",
+      "name": { "vi": "Phân tích chuỗi thời gian", "en": "Time Series Analysis" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 8],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT146IU",
+      "name": { "vi": "Lý Thuyết Mạng Máy Tính", "en": "Theory of Networks" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT056IU",
+      "name": { "vi": "Quản Trị Dự Án CNTT", "en": "IT Project Management" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT094IU",
+      "name": { "vi": "Quản Lý Hệ Thống Thông Tin", "en": "Information System Management" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT164IU",
+      "name": { "vi": "Điện Toán Đám Mây", "en": "Cloud Computing" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT150IU",
+      "name": { "vi": "Blockchain", "en": "Blockchain" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT120IU",
+      "name": { "vi": "Khởi Nghiệp", "en": "Entrepreneurship" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT163IU",
+      "name": { "vi": "Tối ưu hóa và Ứng dụng", "en": "Optimization and Applications" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT076IU",
+      "name": { "vi": "Công nghệ phần mềm", "en": "Software engineering" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [5, 7],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT153IU",
+      "name": { "vi": "Toán rời rạc", "en": "Discrete Mathematics" },
+      "credits": { "total": 3, "theory": 3, "lab": 0 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [4],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT170IU",
+      "name": { "vi": "Xử lý ngôn ngữ tự nhiên", "en": "Natural Language Processing" },
+      "credits": { "total": 4, "theory": 3, "lab": 1 },
+      "area": ["Kiến thức tự chọn"],
+      "language": "en",
+      "semester": [6, 8],
+      "compulsory": "Elective",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT082IU",
+      "name": { "vi": "Thực tập", "en": "Internship" },
+      "credits": { "total": 3, "theory": 0, "lab": 3 },
+      "area": ["Nghiên cứu, thực tập và luận văn tốt nghiệp"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT083IU",
+      "name": { "vi": "Đồ án môn học", "en": "Special Study of the Field" },
+      "credits": { "total": 3, "theory": 0, "lab": 3 },
+      "area": ["Nghiên cứu, thực tập và luận văn tốt nghiệp"],
+      "language": "en",
+      "semester": [7],
+      "compulsory": "Compulsory",
+      "eligibility": {
+          "min_credits": 96,
+          "note": "Sinh viên cần tích lũy ≥ 96 tín chỉ trước khi đăng ký"
+        },
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT058IU",
+      "name": { "vi": "Luận văn tốt nghiệp", "en": "Thesis" },
+      "credits": { "total": 10, "theory": 0, "lab": 10 },
+      "area": ["Nghiên cứu, thực tập và luận văn tốt nghiệp"],
+      "language": "en",
+      "semester": [8],
+      "compulsory": "Compulsory",
+      "eligibility": {
+          "min_credits": 120,
+          "note": "Sinh viên cần tích lũy ≥ 120 tín chỉ trước khi đăng ký"
+        },
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    },
+    {
+      "id": "IT168IU",
+      "name": { "vi": "Thực tập tốt nghiệp 2", "en": "Special Study of the Field 2" },
+      "credits": { "total": 3, "theory": 0, "lab": 3 },
+      "area": ["Nghiên cứu, thực tập và luận văn tốt nghiệp"],
+      "language": "en",
+      "semester": [8],
+      "compulsory": "Compulsory",
+      "source": "CTDT K23 Nganh Khoa hoc Du lieu",
+      "version": "2022-02-15"    
+    }
+  ],
+  "edges": [
+    { "from": "MA001IU", "to": "IT154IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT154IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "MA001IU", "to": "IT151IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT151IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "MA001IU", "to": "IT171IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "MA026IU", "to": "IT171IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT171IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "EN007IU", "to": "EN012IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "EN007IU", "to": "EN011IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT149IU", "to": "IT069IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT069IU", "to": "IT013IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT079IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT159IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT013IU", "to": "IT159IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "MA026IU", "to": "IT159IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT135IU", "to": "IT137IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT135IU", "to": "IT138IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT137IU", "to": "IT138IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT013IU", "to": "IT139IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT069IU", "to": "IT160IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT157IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "MA001IU", "to": "IT157IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT172IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT172IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT154IU", "to": "IT172IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT173IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT160IU", "to": "IT173IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT079IU", "to": "IT173IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT145IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT013IU", "to": "IT169IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT160IU", "to": "IT169IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT056IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT076IU", "to": "IT056IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT079IU", "to": "IT094IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT069IU", "to": "IT076IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT079IU", "to": "IT076IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "MA001IU", "to": "IT153IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT149IU", "to": "IT153IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT013IU", "to": "IT170IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT079IU", "to": "IT170IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT137IU", "to": "IT170IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+
+    { "from": "IT083IU", "to": "IT058IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" },
+    { "from": "IT083IU", "to": "IT168IU", "type": "prerequisite", "source": "CTDT K23 Nganh Khoa hoc Du lieu", "version": "2022-02-15" }
+  ]
+}
