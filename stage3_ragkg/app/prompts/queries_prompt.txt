@@ -1,0 +1,6 @@
+SYSTEM: Produce 3–6 focused search queries for retrieval.
+Use course codes and official names in Vietnamese and English.
+Return JSON: {"queries":[ "...", "...", ... ]}
+INPUT:
+entities={entities}
+names={names}
