@@ -1,4 +1,47 @@
-.venv/
+# --- Secrets ---
 .env
+.env.*
+*.pem
+*.key
+*.crt
+
+# --- Python ---
 __pycache__/
-New Microsoft Word Document.docx
+__init__.py
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Virtual environments ---
+.venv/
+venv/
+ENV/
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log
+
+# --- Data / generated artifacts (Stage 3) ---
+storage/
+data/processed/
+*.pkl
+*.jsonl
+
+# Qdrant embedded storage (if created elsewhere)
+qdrant_storage/
+*.sqlite
+*.db
+
+# --- Build / dist ---
+build/
+dist/
+*.egg-info/
