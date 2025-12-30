@@ -1,0 +1,52 @@
+paths:
+  data_dir: "../data"
+  storage_dir: "storage"
+  chunks_jsonl: "storage/chunks.jsonl"
+  bm25_index: "storage/bm25.pkl"
+  aliases_json: "storage/aliases.json"
+  kg_json: "../data/kg/knowledge_graph.json"
+  qdrant_local_path: "storage/qdrant_embedded"
+  qdrant_collection: "stage3_courses"
+
+chunking:
+  method: "word"          # "word" or "sentence"
+  chunk_size: 512
+  chunk_overlap: 50
+
+embedding:
+  model_name: "AITeamVN/Vietnamese_Embedding_v2"
+  normalize_embeddings: true
+  batch_size: 64
+
+retrieval:
+  # Hybrid BM25 + Qdrant retrieval behavior
+  mode: "hybrid"          
+  mmr_lambda: 0.5
+  mmr_candidates: 20
+  alpha_dense: 0.6        # weight for dense (Qdrant) in score fusion
+
+  enable_hypothetical_questions: true
+  max_hypothetical_questions_per_chunk: 3
+
+qdrant:
+  mode: "embedded"    # "server" | "embedded"
+  host: "localhost"
+  port: 6333
+  prefer_grpc: false
+
+llm:
+  default_backend: "local"
+  local:
+    base_url: "http://localhost:1234/v1"
+    model: "meta-llama-3.1-8b-instruct"
+    text_model: "meta-llama-3.1-8b-instruct"
+    json_model: "meta-llama-3.1-8b-instruct"
+    temperature: 0.2
+    text_temperature: 0.2
+    text_max_output_tokens: 800
+    timeout_s: 120
+
+logging:
+  level: "INFO"        # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  to_file: false       # if true, also log to 'filename'
+  filename: "stage3.log"
