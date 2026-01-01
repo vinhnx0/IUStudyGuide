@@ -248,12 +248,66 @@ def _add_prerequisite_constraints(
                     model.Add(sum_prev >= b_var)
 
 
+def _build_active_semester_indicators(
+    model: cp_model.CpModel,
+    graph: CurriculumGraph,
+    x: Dict[Tuple[str, int], cp_model.IntVar],
+    all_semesters: List[int],
+) -> Tuple[Dict[int, cp_model.IntVar], cp_model.IntVar]:
+    """Create helper variables that describe which semesters are actually used.
+
+    Returns:
+        active_semester: Dict[semester_index -> BoolVar], where active_semester[s]=1
+            iff at least one course is scheduled in semester s.
+        last_active_semester: IntVar, the maximum semester index with active_semester[s]=1.
+
+    Notes:
+        - This is the unified notion of "final semester" used for min-credit relaxation.
+        - It is intentionally independent of Thesis vs Thesis Replacement.
+    """
+    if not all_semesters:
+        raise CurriculumPlanningError("No semesters provided to build active semester indicators.")
+
+    num_courses = len(graph.courses)
+    active: Dict[int, cp_model.IntVar] = {}
+
+    for s in all_semesters:
+        y_s = model.NewBoolVar(f"any_course_sem_{s}")
+        active[s] = y_s
+
+        sum_x = sum(x[(cid, s)] for cid in graph.courses)
+        # If active, must schedule at least one course.
+        model.Add(sum_x >= y_s)
+        # If not active, schedule none.
+        model.Add(sum_x <= num_courses * y_s)
+
+    last_active = model.NewIntVar(min(all_semesters), max(all_semesters), "last_active_semester")
+    for s in all_semesters:
+        model.Add(last_active >= s).OnlyEnforceIf(active[s])
+
+    # Ensure last_active matches exactly one active semester.
+    # (At least one semester must be active because each compulsory/preferred course is scheduled.)
+    is_last_flags: List[cp_model.IntVar] = []
+    for s in all_semesters:
+        is_last = model.NewBoolVar(f"is_last_active_sem_{s}")
+        model.Add(last_active == s).OnlyEnforceIf(is_last)
+        model.Add(last_active != s).OnlyEnforceIf(is_last.Not())
+        # is_last implies active
+        model.Add(active[s] == 1).OnlyEnforceIf(is_last)
+        is_last_flags.append(is_last)
+    model.Add(sum(is_last_flags) == 1)
+
+    return active, last_active
+
+
 def _add_credit_constraints(
     model: cp_model.CpModel,
     graph: CurriculumGraph,
     user_constraints: UserCurriculumConstraints,
     x: Dict[Tuple[str, int], cp_model.IntVar],
     all_semesters: List[int],
+    active_semester: Dict[int, cp_model.IntVar],
+    final_semester_var: cp_model.IntVar,
 ) -> None:
     """
     Semester credit limits:
@@ -263,7 +317,13 @@ def _add_credit_constraints(
 
     If min_credits_per_semester is set:
         sum_{c} credits_c * x[c, s] >= min_credits_per_semester
-    for all semesters EXCEPT the final semester in the planning horizon.
+    for all semesters that are *active* (have any course) EXCEPT the final
+    active semester.
+
+    This implements IU's policy:
+      - enforce minimum credits for non-final semesters
+      - relax minimum credits in the final semester
+    independently of whether the track is Thesis or Thesis Replacement.
     """
     if not all_semesters:
         logger.warning("_add_credit_constraints: no semesters to constrain.")
@@ -276,13 +336,12 @@ def _add_credit_constraints(
         else None
     )
 
-    last_planned_semester = all_semesters[-1]
     logger.debug(
-        "_add_credit_constraints: semesters=%s max=%d min=%s last_sem=%d",
+        "_add_credit_constraints: semesters=%s max=%d min=%s final_sem_var=%s",
         all_semesters,
         max_credits,
         min_credits,
-        last_planned_semester,
+        getattr(final_semester_var, "Name", lambda: "final_semester")(),
     )
 
     for s in all_semesters:
@@ -294,13 +353,18 @@ def _add_credit_constraints(
         # Hard upper bound for every semester
         model.Add(term_credits <= max_credits)
 
-        # Minimum load per semester (IU rule) – but skip the final semester
-        if (
-            min_credits is not None
-            and min_credits > 0
-            and s != last_planned_semester
-        ):
-            model.Add(term_credits >= min_credits)
+        # Minimum load per semester (IU rule)
+        # Enforce ONLY if this semester is active and NOT the final active semester.
+        if min_credits is not None and min_credits > 0:
+            is_final_s = model.NewBoolVar(f"is_final_sem_{s}")
+            # is_final_s <-> (final_semester_var == s)
+            model.Add(final_semester_var == s).OnlyEnforceIf(is_final_s)
+            model.Add(final_semester_var != s).OnlyEnforceIf(is_final_s.Not())
+
+            # If active[s] and not final -> enforce min credits
+            model.Add(term_credits >= min_credits).OnlyEnforceIf(
+                [active_semester[s], is_final_s.Not()]
+            )
 
 
 def _add_elective_credit_constraints(
@@ -543,9 +607,10 @@ def _add_objective_minimize_last_semester(
     graph: CurriculumGraph,
     x: Dict[Tuple[str, int], cp_model.IntVar],
     all_semesters: List[int],
-) -> cp_model.IntVar:
+    last_semester: cp_model.IntVar,
+) -> None:
     """
-    Objective: minimize the last semester index that has any course,
+    Objective: minimize the last active semester index,
     with a small extra penalty if *other* courses share a semester with
     the thesis course.
 
@@ -566,26 +631,7 @@ def _add_objective_minimize_last_semester(
         len(graph.courses),
     )
 
-    # --- Part 1: original "finish early" objective setup ---
-
-    num_courses = len(graph.courses)
-    y: Dict[int, cp_model.IntVar] = {}
-
-    for s in all_semesters:
-        y_s = model.NewBoolVar(f"any_course_sem_{s}")
-        y[s] = y_s
-
-        # sum_c x[c,s] >= y_s
-        sum_x = sum(x[(cid, s)] for cid in graph.courses)
-        model.Add(sum_x >= y_s)
-        # sum_c x[c,s] <= num_courses * y_s
-        model.Add(sum_x <= num_courses * y_s)
-
-    last_semester = model.NewIntVar(0, max(all_semesters), "last_semester")
-    for s in all_semesters:
-        model.Add(last_semester >= s * y[s])
-
-    # --- Part 2: soft penalty if other courses share the thesis semester ---
+    # --- Soft penalty if other courses share the thesis semester ---
 
     # Try to locate the thesis course in the graph
     configured_thesis_ids = {cid.upper() for cid in DEFAULT_THESIS_COURSE_IDS}
@@ -602,7 +648,7 @@ def _add_objective_minimize_last_semester(
             sorted(configured_thesis_ids),
         )
         model.Minimize(last_semester)
-        return last_semester
+        return
 
     # Use the first matching thesis id (IU case: just IT058IU)
     thesis_id = thesis_ids_in_graph[0]
@@ -639,7 +685,7 @@ def _add_objective_minimize_last_semester(
             "using pure last_semester objective."
         )
         model.Minimize(last_semester)
-        return last_semester
+        return
 
     total_co_with_thesis = sum(co_with_thesis)
 
@@ -649,8 +695,7 @@ def _add_objective_minimize_last_semester(
 
     objective_expr = BIG_WEIGHT * last_semester + PENALTY_WEIGHT * total_co_with_thesis
     model.Minimize(objective_expr)
-
-    return last_semester
+    return
 
 
 @log_call(level=20, include_result=False)
@@ -763,22 +808,40 @@ def plan_curriculum_slow(
             len(all_semesters),
         )
 
+        # Unified "final semester" notion (track-agnostic):
+        # the last semester that actually contains any scheduled course.
+        active_semester, last_active_semester = _build_active_semester_indicators(
+            model=model,
+            graph=graph,
+            x=x,
+            all_semesters=all_semesters,
+        )
+
         # Constraints
         _add_course_selection_constraints(model, graph, user_constraints, x, all_semesters)
         _add_availability_constraints(model, graph, x, all_semesters)
         _add_prerequisite_constraints(model, graph, x, all_semesters)
-        _add_credit_constraints(model, graph, user_constraints, x, all_semesters)
+        _add_credit_constraints(
+            model,
+            graph,
+            user_constraints,
+            x,
+            all_semesters,
+            active_semester,
+            last_active_semester,
+        )
         _add_thesis_or_replacement_constraints(model, graph, user_constraints, x, all_semesters)
         _add_elective_credit_constraints(model, graph, user_constraints, x, all_semesters)
         _add_thesis_last_semester_constraints(model, graph, user_constraints, x, all_semesters)
         logger.info("plan_curriculum_slow: added all constraints to the model.")
 
         # Objective
-        last_semester = _add_objective_minimize_last_semester(
-            model,
-            graph,
-            x,
-            all_semesters,
+        _add_objective_minimize_last_semester(
+            model=model,
+            graph=graph,
+            x=x,
+            all_semesters=all_semesters,
+            last_semester=last_active_semester,
         )
 
         # --- Solve ---
@@ -806,8 +869,12 @@ def plan_curriculum_slow(
             )
 
         # --- Extract solution ---
-        used_last_sem = int(solver.Value(last_semester))
-        logger.info("plan_curriculum_slow: used_last_semester=%d", used_last_sem)
+        used_last_sem = int(solver.Value(last_active_semester))
+        logger.info(
+            "plan_curriculum_slow: used_last_semester=%d (Final semester detected = HK%d, min-credit constraint relaxed.)",
+            used_last_sem,
+            used_last_sem,
+        )
         if used_last_sem == 0:
             # No course scheduled despite feasible status → treat as OK but empty.
             logger.warning("plan_curriculum_slow: feasible status but no courses scheduled (used_last_sem=0)")
