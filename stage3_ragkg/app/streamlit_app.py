@@ -189,35 +189,78 @@ This demo combines:
 
 
 def render_plan(plan: CurriculumPlan) -> None:
-    """Render curriculum plan in the UI."""
-    st.subheader("Curriculum Plan (ILP)")
-    for sem in plan.semesters:
-        title = sem.get("title") or sem.get("semester") or "Semester"
-        courses = sem.get("courses") or []
-        credits = sem.get("credits") or sem.get("total_credits")
-        st.markdown(f"### {title}")
-        if credits is not None:
-            st.caption(f"Credits: {credits}")
+    """
+    Render curriculum plan to Streamlit UI.
 
-        if courses:
-            rendered: List[str] = []
-            for c in courses:
-                if isinstance(c, str):
-                    rendered.append(c)
-                elif isinstance(c, dict):
-                    cid = str(c.get("id") or "").strip()
-                    name = str(c.get("name") or "").strip()
-                    if cid and name and name != cid:
-                        rendered.append(f"{cid} — {name}")
-                    elif cid:
-                        rendered.append(cid)
-                    else:
-                        rendered.append(json.dumps(c, ensure_ascii=False))
-                else:
-                    rendered.append(str(c))
-            st.write(", ".join(rendered))
-        else:
-            st.write("_No courses_")
+    UX rules:
+    - If INFEASIBLE: show a clear user-facing message + general suggestions (Vietnamese only)
+    - If FEASIBLE/OPTIMAL: render by semester, one course per line
+    """
+
+    # ---------- INFEASIBLE ----------
+    solver_status = (plan.summary or {}).get("status") or (plan.meta or {}).get("solver_status")
+
+    if solver_status == "INFEASIBLE":
+        st.error("Không tìm được kế hoạch học phù hợp (infeasible).")
+
+        st.markdown(
+            """
+            Bạn có thể thử:
+            - Tăng số **tín chỉ tối đa mỗi học kỳ** hoặc giảm **tín chỉ tối thiểu mỗi học kỳ** (nếu có)
+            - Tăng **số học kỳ / số năm** trong kế hoạch
+            - Nới lỏng một số **ràng buộc cố định** (ví dụ: giới hạn môn học được chọn, hoặc học kỳ bắt đầu)
+            - **Kiểm tra lại danh sách các môn đã hoàn thành**
+            """
+        )
+
+        logger.info("Rendered INFEASIBLE plan to UI")
+        return
+
+    # ---------- ERROR ----------
+    solver_status = (plan.summary or {}).get("status") or (plan.meta or {}).get("solver_status")
+
+    if solver_status == "ERROR":
+        st.error("Đã xảy ra lỗi hệ thống khi lập kế hoạch.")
+        solver_message = (plan.summary or {}).get("message") or (plan.meta or {}).get("solver_message")
+
+        if solver_message:
+            st.caption(solver_message)
+
+        logger.error("Rendered ERROR plan to UI")
+        return
+
+    # ---------- FEASIBLE / OPTIMAL ----------
+    if not plan.semesters:
+        st.warning("Không có dữ liệu kế hoạch để hiển thị.")
+        logger.warning("Plan has no semesters but status is not INFEASIBLE/ERROR")
+        return
+
+    for sem in plan.semesters:
+        semester_label = sem.get("semester", "")
+        total_credits = sem.get("total_credits", 0)
+
+        st.subheader(f"Semester {semester_label}")
+        st.caption(f"Total: {total_credits} credits")
+
+        courses = sem.get("courses", [])
+        if not courses:
+            st.write("_Không có môn học trong học kỳ này._")
+            continue
+
+        # Stable ordering: by course_id
+        courses_sorted = sorted(courses, key=lambda c: c.get("id", ""))
+
+        for c in courses_sorted:
+            cid = c.get("id", "")
+            name = c.get("name", cid)
+            credits = c.get("credits", None)
+
+            if credits is not None:
+                st.write(f"{cid} — {name} — {credits} credits")
+            else:
+                st.write(f"{cid} — {name}")
+
+    logger.info("Rendered FEASIBLE/OPTIMAL plan to UI")
 
 
 def _render_index_rebuild_ui(cfg: Dict[str, Any], status: Dict[str, Any]) -> None:
