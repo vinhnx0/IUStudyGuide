@@ -11,6 +11,9 @@ from app.logging_utils import get_logger, log_call
 from app.llm import llm_generate_json
 
 logger = get_logger(__name__)
+import app.llm as _llm
+logger.info("IMPORT CHECK router: app.llm file=%s", getattr(_llm, "__file__", "unknown"))
+logger.info("IMPORT CHECK router: llm_generate_json module=%s", getattr(llm_generate_json, "__module__", "unknown"))
 
 # Simple heuristic course ID pattern (e.g., IT001IU, CS201, MATH101, etc.)
 COURSE_ID_RE = re.compile(
@@ -190,6 +193,7 @@ def route_llm(
             prompt=prompt,
             cfg=cfg,
             step="router",
+            caller="router",
             max_tokens=256,
         )
     except Exception as exc:

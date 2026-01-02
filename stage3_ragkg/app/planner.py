@@ -15,6 +15,9 @@ from app.slow_curriculum_ilp import (
 from app.rag.alias_normalizer import AliasNormalizer
 
 logger = get_logger(__name__)
+import app.llm as _llm
+logger.info("IMPORT CHECK planner: app.llm file=%s", getattr(_llm, "__file__", "unknown"))
+logger.info("IMPORT CHECK planner: llm_generate_json module=%s", getattr(llm_generate_json, "__module__", "unknown"))
 
 # =====================================================
 # Curriculum plan data model
@@ -93,6 +96,7 @@ def decompose_question(question: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
             prompt=prompt,
             cfg=cfg,
             step="decompose",
+            caller="planner",
             max_tokens=800,
         )
     except Exception as exc:
@@ -219,6 +223,7 @@ def parse_user_constraints(
             prompt=llm_prompt,
             cfg=cfg,
             step="constraints",
+            caller="planner",
             max_tokens=800,
         )
     except Exception as exc:
@@ -291,7 +296,7 @@ def parse_user_constraints(
 # Slow planner orchestration (ILP)
 # =====================================================
 
-@log_call(level=logging.INFO, include_result=True)
+@log_call(level=logging.INFO, include_result=False)
 def run_slow_planner_for_curriculum(
     question: str,
     cfg: Dict[str, Any],

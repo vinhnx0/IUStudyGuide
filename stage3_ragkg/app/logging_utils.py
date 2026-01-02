@@ -73,7 +73,12 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     return logging.getLogger(name or __name__)
 
 
-def log_call(level: int = logging.DEBUG, include_result: bool = False) -> Callable[[F], F]:
+def log_call(
+    level: int = logging.DEBUG,
+    include_result: bool = False,
+    *,
+    log_args: bool = False,
+) -> Callable[[F], F]:
     """
     Decorator to log function entry, arguments, execution time, and optionally result.
 
@@ -91,11 +96,15 @@ def log_call(level: int = logging.DEBUG, include_result: bool = False) -> Callab
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             start = time.perf_counter()
-            # Avoid heavy repr on large objects by truncating args/kwargs in logs
-            try:
-                logger.log(level, "CALL %s args=%r kwargs=%r", func.__name__, args, kwargs)
-            except Exception:
-                logger.log(level, "CALL %s (args/kwargs repr failed)", func.__name__)
+            if log_args:
+                # WARNING: args/kwargs repr can be heavy and may leak user content (prompts).
+                # Keep disabled by default; enable only for small, safe functions.
+                try:
+                    logger.log(level, "CALL %s args=%r kwargs=%r", func.__name__, args, kwargs)
+                except Exception:
+                    logger.log(level, "CALL %s (args/kwargs repr failed)", func.__name__)
+            else:
+                logger.log(level, "CALL %s", func.__name__)
 
             try:
                 result = func(*args, **kwargs)

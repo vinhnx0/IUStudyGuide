@@ -21,6 +21,7 @@ IU_THESIS_REPLACEMENT_COURSE_ID: str = "IT168IU"
 IU_REPLACEMENT_MIN_EXTRA_ELECTIVE_COURSES: int = 2
 IU_REPLACEMENT_MIN_EXTRA_ELECTIVE_CREDITS: int = 7
 
+
 @dataclass
 class UserCurriculumConstraints:
     """
@@ -39,6 +40,7 @@ class UserCurriculumConstraints:
         * 3  -> the student has already completed semesters 1 and 2, and the
                 next semester in the curriculum is semester 3
     """
+
     # IU curriculum structure
     total_years: int
     semesters_per_year: int
@@ -57,7 +59,7 @@ class UserCurriculumConstraints:
 
     # Courses that the student has already completed; they will not be scheduled again
     completed_courses: List[str] = field(default_factory=list)
-    
+
     # IU-specific thesis handling
     # If empty, DEFAULT_THESIS_COURSE_IDS will be used.
     thesis_course_ids: List[str] = field(default_factory=list)
@@ -69,6 +71,7 @@ class UserCurriculumConstraints:
     # If True: replace Thesis (IT058IU) with IT168IU + an additional elective bundle.
     # Default False keeps legacy behavior: Thesis is required.
     use_thesis_replacement: bool = False
+
 
 @dataclass
 class PlannedSemester:
@@ -85,14 +88,17 @@ class PlannedCourse:
     name: str
     credits: Optional[int] = None
 
+
 @dataclass
 class CurriculumPlan:
     status: Literal["OK", "INFEASIBLE", "ERROR"]
     semesters: List[PlannedSemester]
     message: Optional[str] = None
 
+
 class CurriculumPlanningError(Exception):
     """Raised when the planning pipeline fails for non-ILP reasons."""
+
 
 @dataclass
 class CurriculumGraph:
@@ -104,6 +110,7 @@ class CurriculumGraph:
     prereq_in:
         course_id -> list of prerequisite course_ids
     """
+
     courses: Dict[str, CourseNode]
     prereq_in: Dict[str, List[str]]
 

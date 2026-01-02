@@ -249,6 +249,34 @@ def build_relevant_kg_findings(
         if targets:
             payload["targets"] = targets
 
+    # Metric-only KG observability (avoid logging full KG payload).
+    try:
+        preview_ids: List[str] = []
+        for cid in payload.get("meta", {}).get("seed_courses", []) or []:
+            s = str(cid).strip()
+            if s and s not in preview_ids:
+                preview_ids.append(s)
+            if len(preview_ids) >= 20:
+                break
+        if not preview_ids:
+            for n in (payload.get("nodes") or [])[:20]:
+                if isinstance(n, dict) and n.get("id"):
+                    preview_ids.append(str(n["id"]).strip())
+        meta = payload.get("meta") or {}
+        logger.debug(
+            "KG_BUILD seeds=%d nodes=%d edges=%d truncated_nodes=%s truncated_edges=%s courses=%s capped=%d",
+            len(meta.get("seed_courses") or []),
+            int(meta.get("node_count", 0) or 0),
+            int(meta.get("edge_count", 0) or 0),
+            bool(meta.get("truncated_nodes", False)),
+            bool(meta.get("truncated_edges", False)),
+            preview_ids,
+            20,
+        )
+    except Exception:
+        # Never let logging break KG reasoning
+        pass
+
     return payload
 
 

@@ -146,6 +146,54 @@ def _safe_len(x) -> int:
         return 0
 
 
+def _capped_course_preview(values: Any, *, cap: int = 20) -> List[str]:
+    """Return a stable, capped list of course IDs for logs.
+
+    This keeps logs small and avoids dumping large KG structures.
+    """
+    ids: List[str] = []
+    try:
+        for v in (values or []):
+            if v is None:
+                continue
+            s = str(v).strip()
+            if not s:
+                continue
+            if s not in ids:
+                ids.append(s)
+            if len(ids) >= int(cap):
+                break
+    except Exception:
+        return []
+    return ids
+
+
+def _log_kg_metrics(*, tag: str, kg_payload: Dict[str, Any], findings_json: str, req_id: Any = None) -> None:
+    """Log KG_FINDINGS metrics (no content)."""
+    meta = (kg_payload or {}).get("meta") or {}
+    node_count = int(meta.get("node_count", 0) or 0)
+    edge_count = int(meta.get("edge_count", 0) or 0)
+    seeds = _capped_course_preview(meta.get("seed_courses") or [])
+
+    # Optional extra preview from included nodes (capped). Keep deterministic.
+    try:
+        node_ids = _capped_course_preview([n.get("id") for n in (kg_payload.get("nodes") or []) if isinstance(n, dict)])
+    except Exception:
+        node_ids = []
+
+    preview = seeds or node_ids
+    logger.info(
+        "KG_FINDINGS tag=%s req_id=%s chars=%d nodes=%d edges=%d courses=%s capped=%d",
+        tag,
+        str(req_id) if req_id is not None else "-",
+        len(findings_json or ""),
+        node_count,
+        edge_count,
+        preview,
+        20,
+    )
+
+
 def sanitize_kg_findings_for_llm(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Remove debug-heavy fields from KG findings used in LLM prompts."""
     out: List[Dict[str, Any]] = []
@@ -300,6 +348,8 @@ def _render_index_rebuild_ui(cfg: Dict[str, Any], status: Dict[str, Any]) -> Non
 
 def main() -> None:
     cfg = get_cfg()
+    import app.llm as _llm
+    logger.info("RUNTIME CHECK: app.llm file=%s", getattr(_llm, "__file__", "unknown"))
 
     # Always validate index status early so the app never crashes after DB reset.
     with st.spinner("Checking index status..."):
@@ -426,12 +476,14 @@ def main() -> None:
                 include_target_findings=True,
             )
 
-            logger.info(
-                "KG_FINDINGS(FAST) meta=%s",
-                kg_payload.get("meta") or {},
-            )
-
             findings_json = json.dumps(kg_payload, ensure_ascii=False, indent=2)
+
+            _log_kg_metrics(
+                tag="FAST",
+                kg_payload=kg_payload,
+                findings_json=findings_json,
+                req_id=st.session_state.get("req_id"),
+            )
 
             synth_template = load_answer_synth_prompt()
 
@@ -447,7 +499,7 @@ def main() -> None:
                 curriculum_plan="",
             )
 
-            logger.info(
+            logger.debug(
                 "LLM prompt breakdown | template=%d question=%d evidence=%d kg=%d TOTAL=%d",
                 _safe_len(synth_template),
                 _safe_len(question_clean),
@@ -456,7 +508,7 @@ def main() -> None:
                 _safe_len(prompt),
             )
 
-            answer = llm_generate_text(prompt, cfg)
+            answer = llm_generate_text(prompt, cfg, caller="synthesis")
             answer = strip_think(answer)
 
             out_res = output_guard.check(answer)
@@ -547,6 +599,13 @@ def main() -> None:
                     )
                     findings_json = json.dumps(kg_payload, ensure_ascii=False, indent=2)
 
+                    _log_kg_metrics(
+                        tag="SLOW",
+                        kg_payload=kg_payload,
+                        findings_json=findings_json,
+                        req_id=st.session_state.get("req_id"),
+                    )
+
                     planner_meta = {
                         **(planner_meta or {}),
                         "use_thesis_replacement": bool(use_thesis_replacement),
@@ -575,7 +634,7 @@ def main() -> None:
                 curriculum_plan=curriculum_plan_str,
             )
 
-            logger.info(
+            logger.debug(
                 "Planning synth prompt breakdown | template=%d question=%d plan=%d kg_findings=%d TOTAL=%d",
                 _safe_len(synth_template),
                 _safe_len(q),

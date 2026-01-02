@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type
 
@@ -9,9 +10,10 @@ import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-from app.logging_utils import get_logger, log_call
+from app.logging_utils import get_logger
 
 logger = get_logger(__name__)
+logger.info("app.llm loaded from %s", __file__)
 
 _ENV_LOADED = False
 
@@ -227,6 +229,18 @@ def _safe_json_loads(raw: str) -> Any:
     raise ValueError("Could not extract JSON from model output")
 
 
+def _estimate_tokens(text: str) -> int:
+    """Cheap token estimate for observability.
+
+    We intentionally avoid heavy tokenizer dependencies. A common rough
+    heuristic is ~4 characters per token.
+    """
+    text = text or ""
+    if not text:
+        return 0
+    return max(1, len(text) // 4)
+
+
 # ======================================================
 # PUBLIC API
 # ======================================================
@@ -238,11 +252,11 @@ def strip_think(text: str) -> str:
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 
-@log_call(include_result=False)
 def llm_generate_text(
     prompt: str,
     cfg: Dict[str, Any],
     *,
+    caller: str = "unknown",
     model: Optional[str] = None,
     temperature: Optional[float] = None,
     max_tokens: Optional[int] = None,
@@ -259,8 +273,15 @@ def llm_generate_text(
     default_max = int(lm_cfg.get("text_max_output_tokens", lm_cfg.get("max_output_tokens", 800)))
 
     sys_p, user_p = _split_system_user(prompt)
-    logger.info(
-        "LLM(local) text | base_url=%s model=%s temp=%.3f max_tokens=%s sys_len=%d user_len=%d",
+
+    prompt_chars = len(prompt or "")
+    prompt_tokens = _estimate_tokens(prompt)
+    start = time.perf_counter()
+
+    # Keep config detail at DEBUG to avoid spam; do not log full prompt.
+    logger.debug(
+        "LLM(local) text config | caller=%s base_url=%s model=%s temp=%.3f max_tokens=%s sys_len=%d user_len=%d",
+        caller,
         base_url,
         (model or text_model),
         (default_temp if temperature is None else float(temperature)),
@@ -269,7 +290,7 @@ def llm_generate_text(
         len(user_p or ""),
     )
 
-    return _lmstudio_chat_completion(
+    out = _lmstudio_chat_completion(
         system_prompt=sys_p,
         user_prompt=user_p,
         base_url=base_url,
@@ -279,17 +300,34 @@ def llm_generate_text(
         timeout_s=int(lm_cfg.get("timeout_s", 120)),
     )
 
+    runtime_s = time.perf_counter() - start
+    output_chars = len(out or "")
 
-@log_call(include_result=False)
+    logger.info(
+        "LLM_CALL caller=%s backend=%s model=%s prompt_chars=%d prompt_tokens~%d output_chars=%d runtime_s=%.3f",
+        caller,
+        "local",
+        (model or text_model),
+        prompt_chars,
+        prompt_tokens,
+        output_chars,
+        runtime_s,
+    )
+    return out
+
+
 def llm_generate_json(
     prompt: str,
     cfg: Dict[str, Any],
     *,
     step: str,
+    caller: str = "unknown",
     model: Optional[str] = None,
     temperature: float = 0.0,
     max_tokens: int = 512,
 ) -> Dict[str, Any]:
+    logger.info("LLM_JSON_ENTER caller=%s step=%s", caller, step)
+
     backend = _backend(cfg)
 
     if backend != "local":
@@ -314,7 +352,7 @@ def llm_generate_json(
     system_prompt = json_contract
     user_prompt = f"TASK INPUT:\n{prompt}\n"
 
-    def _try_once(extra_fix: Optional[str] = None) -> Dict[str, Any]:
+    def _try_once(extra_fix: Optional[str] = None) -> Tuple[Dict[str, Any], int]:
         sys_p = system_prompt if not extra_fix else (system_prompt + "\n\nFIX:\n" + extra_fix)
         raw = _lmstudio_chat_completion(
             system_prompt=sys_p,
@@ -326,12 +364,18 @@ def llm_generate_json(
             timeout_s=timeout_s,
         )
         raw = strip_think(raw)
+        raw_chars = len(raw or "")
         data = _safe_json_loads(raw)
         validated = out_model.model_validate(data)
-        return validated.model_dump()
+        return validated.model_dump(), raw_chars
 
-    logger.info(
-        "LLM(local) json | step=%s base_url=%s model=%s temp=%.3f max_tokens=%d",
+    prompt_chars = len(prompt or "")
+    prompt_tokens = _estimate_tokens(prompt)
+    start = time.perf_counter()
+
+    logger.debug(
+        "LLM(local) json config | caller=%s step=%s base_url=%s model=%s temp=%.3f max_tokens=%d",
+        caller,
         step,
         base_url,
         (model or json_model),
@@ -339,17 +383,40 @@ def llm_generate_json(
         int(max_tokens),
     )
 
+    json_ok = False
+    output_chars = 0
+
     # 1st attempt
     try:
-        return _try_once()
+        parsed, raw_chars = _try_once()
+        json_ok = True
+        output_chars = int(raw_chars)
+        return parsed
     except Exception as e1:
         logger.warning("llm_generate_json: first parse/validate failed: %s", e1)
 
     # 2nd attempt with stronger fix instruction
     try:
-        return _try_once(
+        parsed, raw_chars = _try_once(
             "Return ONLY the JSON object/array. No leading text. No trailing text. Do not wrap in markdown."
         )
+        json_ok = True
+        output_chars = int(raw_chars)
+        return parsed
     except Exception as e2:
         logger.error("llm_generate_json: second parse/validate failed: %s", e2)
         raise
+    finally:
+        runtime_s = time.perf_counter() - start
+        logger.info(
+            "LLM_CALL caller=%s backend=%s model=%s step=%s prompt_chars=%d prompt_tokens~%d output_chars=%d runtime_s=%.3f json_ok=%s",
+            caller,
+            "local",
+            (model or json_model),
+            step,
+            prompt_chars,
+            prompt_tokens,
+            int(output_chars),
+            runtime_s,
+            bool(json_ok),
+        )
