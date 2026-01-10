@@ -161,6 +161,35 @@ def _prereq_closure_limited(
     return visited
 
 
+def _course_name_from_node(node_map: Dict[str, "CourseNode"], cid: str) -> str:
+    """Return a stable, human-friendly course name for display."""
+    try:
+        cid_u = str(cid).strip().upper()
+        node = node_map.get(cid_u)
+        if node is None:
+            return ""
+        nm = getattr(node, "name", None)
+        if isinstance(nm, dict):
+            # Keep consistent with _compact_course_node: prefer EN then VI then any
+            name = nm.get("en") or nm.get("vi")
+            if not name and nm:
+                name = next(iter(nm.values()))
+            return (name or "").strip()
+        # If schema ever changes, be defensive
+        if isinstance(nm, str):
+            return nm.strip()
+    except Exception:
+        return ""
+    return ""
+
+
+def _fmt_course_display(node_map: Dict[str, "CourseNode"], cid: str) -> str:
+    """Format as 'CODE (Name)' if name exists; else 'CODE'."""
+    cid_u = str(cid).strip().upper()
+    name = _course_name_from_node(node_map, cid_u)
+    return f"{cid_u} ({name})" if name else cid_u
+
+
 @log_call(level=logging.INFO, include_result=False)
 def build_relevant_kg_findings(
     *,
@@ -186,7 +215,7 @@ def build_relevant_kg_findings(
         "targets": [ optional per-target derived prereq fields ...]
       }
     """
-    seeds = {str(x).strip() for x in (seed_course_ids or []) if str(x).strip()}
+    seeds = {str(x).strip().upper() for x in (seed_course_ids or []) if str(x).strip()}
     if not seeds:
         return {"meta": {"seed_courses": [], "node_count": 0, "edge_count": 0}, "nodes": [], "edges": []}
 
@@ -197,8 +226,9 @@ def build_relevant_kg_findings(
     edges: List[Dict[str, str]] = []
     for course in relevant_list:
         for pre in prereq_in.get(course, []) or []:
-            if pre in relevant:
-                edges.append({"course": course, "prereq": pre})
+            pre_u = str(pre).strip().upper()
+            if pre_u in relevant:
+                edges.append({"course": course, "prereq": pre_u})
                 if len(edges) >= max_edges:
                     break
         if len(edges) >= max_edges:
@@ -234,13 +264,44 @@ def build_relevant_kg_findings(
         targets: List[Dict[str, Any]] = []
         for cid in list(sorted(seeds))[: max_targets]:
             try:
-                f = build_findings_for_course(cid, node_map=node_map, prereq_in=prereq_in)
-                # Keep only deterministic, user-facing fields; drop debug-heavy fields.
+                cid_u = str(cid).strip().upper()
+                f = build_findings_for_course(cid_u, node_map=node_map, prereq_in=prereq_in)
+
+                required_courses = [str(x).strip().upper() for x in (f.get("required_courses") or []) if str(x).strip()]
+                prereq_lvls = f.get("prereq_required_by_level") or []
+
+                # Enrich display fields so LLM can print names deterministically
+                course_name = _course_name_from_node(node_map, cid_u)
+                required_courses_display = [_fmt_course_display(node_map, x) for x in required_courses]
+
+                prereq_lvls_display = []
+                if isinstance(prereq_lvls, list):
+                    for item in prereq_lvls:
+                        if not isinstance(item, dict):
+                            continue
+                        lvl = item.get("level", None)
+                        courses = [str(x).strip().upper() for x in (item.get("courses") or []) if str(x).strip()]
+                        prereq_lvls_display.append(
+                            {
+                                "level": lvl,
+                                "courses": courses,
+                                "courses_display": [_fmt_course_display(node_map, x) for x in courses],
+                            }
+                        )
+
+                # Keep only deterministic, user-facing fields; add display fields.
                 keep = {
-                    "course": f.get("course"),
-                    "required_courses": f.get("required_courses") or [],
+                    "course": f.get("course") or cid_u,
+                    "course_name": course_name,
+                    "course_display": _fmt_course_display(node_map, cid_u),
+
+                    "required_courses": required_courses,
+                    "required_courses_display": required_courses_display,
+
                     "dependency_rules": f.get("dependency_rules") or [],
-                    "prereq_required_by_level": f.get("prereq_required_by_level") or [],
+                    "prereq_required_by_level": prereq_lvls,
+                    "prereq_required_by_level_display": prereq_lvls_display,
+
                     "eligibility_note": f.get("eligibility_note"),
                 }
                 targets.append(keep)
