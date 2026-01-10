@@ -121,6 +121,58 @@ def load_slow_planning_synth_prompt() -> str:
     )
 
 
+_TEMPLATE_BEGIN_PREFIX = "===TEMPLATE_BEGIN:"
+
+
+def get_prompt_prefix(full_prompt: str) -> str:
+    # Return everything before the first occurrence of a template marker.
+    full_prompt = full_prompt or ""
+    i = full_prompt.find(_TEMPLATE_BEGIN_PREFIX)
+    if i == -1:
+        return full_prompt
+    return full_prompt[:i]
+
+
+def slice_template_block(full_prompt: str, template_id: str) -> str:
+    # Return ONLY the template block for the given template_id.
+    # If markers are missing/not found, return full_prompt (fallback) and log a warning.
+    full_prompt = full_prompt or ""
+    template_id = (template_id or "").strip()
+    begin = f"===TEMPLATE_BEGIN:{template_id}==="
+    end = f"===TEMPLATE_END:{template_id}==="
+
+    if _TEMPLATE_BEGIN_PREFIX not in full_prompt:
+        logger.warning("Prompt slicing markers not found; falling back to full prompt")
+        return full_prompt
+
+    a = full_prompt.find(begin)
+    if a == -1:
+        logger.warning("Prompt template block not found; falling back to full prompt | template_id=%s", template_id)
+        return full_prompt
+
+    b = full_prompt.find(end, a + len(begin))
+    if b == -1:
+        logger.warning("Prompt template end marker missing; falling back to full prompt | template_id=%s", template_id)
+        return full_prompt
+
+    return full_prompt[a + len(begin) : b].strip("\n")
+
+
+def _select_answer_template(intent: str) -> str:
+    """Map router intent -> answer template id for FAST synthesis.
+
+    Planning (course_planning) is handled by ILP/UI; no LLM synthesis is required.
+    """
+    i = (intent or "").strip().lower()
+    if i == "course_lookup":
+        return "LOOKUP_V1"
+    if i == "prerequisite_reasoning":
+        return "PREREQ_PATH_V1"
+    if i == "eligibility_checking":
+        return "ELIGIBILITY_CHECKLIST_V1"
+    return "GENERAL_QNA_V1"
+
+
 def format_retrieval_evidence(chunks: List[Dict[str, Any]]) -> str:
     """Format retrieved chunks into a string block for the LLM prompt."""
     lines: List[str] = []
@@ -168,6 +220,60 @@ def _capped_course_preview(values: Any, *, cap: int = 20) -> List[str]:
     return ids
 
 
+def _precompute_prereq_ordering_line(kg_payload: Dict[str, Any], target: str) -> str:
+    """
+    Deterministically build the minimal ordering line for PREREQ from:
+    KG_FINDINGS.targets[*].prereq_required_by_level
+
+    Output example:
+    "Thứ tự tối thiểu gợi ý: IT149IU, MA001IU → IT069IU, IT154IU → IT172IU"
+    """
+    if not target:
+        return ""
+
+    targets = (kg_payload or {}).get("targets") or []
+    tmatch = None
+    for t in targets:
+        if isinstance(t, dict) and str(t.get("course", "")).strip().upper() == str(target).strip().upper():
+            tmatch = t
+            break
+    if not tmatch:
+        return ""
+
+    lvls = tmatch.get("prereq_required_by_level") or []
+    if not isinstance(lvls, list) or not lvls:
+        return ""
+
+    # sort by "level" if present; otherwise keep given order
+    def _lvl_key(x):
+        try:
+            return int(x.get("level", 10**9))
+        except Exception:
+            return 10**9
+
+    parts: List[str] = []
+    for item in sorted([x for x in lvls if isinstance(x, dict)], key=_lvl_key):
+        courses = item.get("courses") or []
+        # stable de-dup, preserve order
+        seen = set()
+        cleaned = []
+        for c in courses:
+            s = str(c).strip().upper()
+            if not s or s in seen:
+                continue
+            seen.add(s)
+            cleaned.append(s)
+        if cleaned:
+            parts.append(", ".join(cleaned))
+
+    if not parts:
+        return ""
+
+    tgt = str(target).strip().upper()
+    chain = " → ".join(parts + [tgt])
+    return f"Thứ tự tối thiểu gợi ý: {chain}"
+
+
 def _log_kg_metrics(*, tag: str, kg_payload: Dict[str, Any], findings_json: str, req_id: Any = None) -> None:
     """Log KG_FINDINGS metrics (no content)."""
     meta = (kg_payload or {}).get("meta") or {}
@@ -192,6 +298,57 @@ def _log_kg_metrics(*, tag: str, kg_payload: Dict[str, Any], findings_json: str,
         preview,
         20,
     )
+
+
+def _log_kg_preview(*, tag: str, kg_payload: Dict[str, Any], req_id: Any = None,
+                    max_nodes: int = 40, max_edges: int = 80) -> None:
+    """Debug-only: log a small preview of nodes/edges to verify KG extraction."""
+    try:
+        nodes = kg_payload.get("nodes") or []
+        edges = kg_payload.get("edges") or []
+        targets = kg_payload.get("targets") or []
+
+        node_ids = []
+        for n in nodes:
+            if isinstance(n, dict) and n.get("id"):
+                node_ids.append(str(n["id"]).strip())
+            if len(node_ids) >= max_nodes:
+                break
+
+        edge_pairs = []
+        for e in edges:
+            if isinstance(e, dict) and e.get("course") and e.get("prereq"):
+                edge_pairs.append(f'{e["course"]} <- {e["prereq"]}')
+            if len(edge_pairs) >= max_edges:
+                break
+
+        target_summ = []
+        for t in targets:
+            if not isinstance(t, dict):
+                continue
+            course = t.get("course")
+            reqs = t.get("required_courses") or []
+            lvls = t.get("prereq_required_by_level") or []
+            target_summ.append(
+                {
+                    "course": course,
+                    "required_courses": reqs,
+                    "prereq_required_by_level": lvls,
+                }
+            )
+
+        logger.info(
+            "KG_PREVIEW tag=%s req_id=%s nodes=%d edges=%d node_ids=%s edge_pairs=%s targets=%s",
+            tag,
+            str(req_id) if req_id is not None else "-",
+            len(nodes),
+            len(edges),
+            node_ids,
+            edge_pairs,
+            target_summ,
+        )
+    except Exception:
+        logger.exception("KG_PREVIEW failed")
 
 
 def sanitize_kg_findings_for_llm(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -256,7 +413,7 @@ def render_plan(plan: CurriculumPlan) -> None:
             Bạn có thể thử:
             - Tăng số **tín chỉ tối đa mỗi học kỳ** hoặc giảm **tín chỉ tối thiểu mỗi học kỳ** (nếu có)
             - Tăng **số học kỳ / số năm** trong kế hoạch
-            - Nới lỏng một số **ràng buộc cố định** (ví dụ: giới hạn môn học được chọn, hoặc học kỳ bắt đầu)
+            - Nới lỏng một số **ràng buộc cố định** (ví dụ: giới hạn môn học được chọn, hoặc học kỳ bắt đầu lên kế hoạch)
             - **Kiểm tra lại danh sách các môn đã hoàn thành**
             """
         )
@@ -427,7 +584,6 @@ def main() -> None:
         decomp_entities = decomp.get("entities") or []
         decomp_sub_questions = decomp.get("sub_questions") or []
         kg_queries = decomp.get("kg_queries") or []
-        num_sub_questions = len(decomp_sub_questions)
 
         try:
             chunks = retriever.retrieve(question_clean, top_k=3)
@@ -449,7 +605,6 @@ def main() -> None:
             decomp_entities=decomp_entities,
             kg_queries=kg_queries,
             decomp_sub_questions=decomp_sub_questions,
-            num_sub_questions=num_sub_questions,
         )
 
         st.session_state.last_route_decision = asdict(decision)
@@ -484,10 +639,41 @@ def main() -> None:
                 findings_json=findings_json,
                 req_id=st.session_state.get("req_id"),
             )
-
+            _log_kg_preview(
+                tag="FAST",
+                kg_payload=kg_payload,
+                req_id=st.session_state.get("req_id"),
+            )
             synth_template = load_answer_synth_prompt()
 
+            template_id = _select_answer_template(decision.intent)
+            logger.info(
+                "Answer synthesis | intent=%s template_id=%s route=%s",
+                decision.intent,
+                template_id,
+                decision.route,
+            )
+            # Default empty unless PREREQ template needs it
+            precomputed_prereq_ordering = ""
+
+            if template_id == "PREREQ_PATH_V1":
+                # choose target deterministically (prefer router decision)
+                target_course = ""
+                for lst in [list(decision.entities or []), list(decomp_entities or []), list(entities or [])]:
+                    if lst:
+                        target_course = str(lst[0]).strip().upper()
+                        break
+
+                precomputed_prereq_ordering = _precompute_prereq_ordering_line(kg_payload, target_course)
+                logger.info(
+                    "PREREQ_ORDERING_PRECOMPUTED req_id=%s target=%s line=%s",
+                    str(st.session_state.get("req_id", "-")),
+                    target_course,
+                    precomputed_prereq_ordering or "(empty)",
+                )
+
             prompt = synth_template.format(
+                template_id=template_id,
                 evidence=evidence_block,
                 question=question_clean,
                 entities=json.dumps(decision.entities or [], ensure_ascii=False),
@@ -497,6 +683,7 @@ def main() -> None:
                 signals=", ".join(decision.signals or []),
                 kg_findings=findings_json,
                 curriculum_plan="",
+                precomputed_prereq_ordering=precomputed_prereq_ordering,
             )
 
             logger.debug(
@@ -642,8 +829,8 @@ def main() -> None:
                 _safe_len(findings_json),
                 _safe_len(prompt),
             )
-            
-            
+
+            # Planning synthesis remains disabled by design (no LLM output for planning).
             # answer = llm_generate_text(prompt, cfg)
             # answer = strip_think(answer)
 

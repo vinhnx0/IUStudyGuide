@@ -33,28 +33,43 @@ RULES:
    If no KG operation needed → empty array.
 
 ------------------------------------------------
+OP SELECTION (STRAIGHTFORWARD):
+
+- If the user asks for course details (semester offered, credits, description, syllabus):
+  include one "lookup_course" op with course_ids = mentioned course ids.
+
+- If the user asks about prerequisites / required prerequisite courses / dependency chains:
+  include one "lookup_prereqs" op with course_ids = the target course ids.
+
+- If the user asks to arrange remaining courses across multiple future semesters, or to create a
+  multi-semester study plan / curriculum plan:
+  include one "plan_curriculum" op.
+
+If you cannot infer the right operation, use:
+  kg_queries = [{{"op": "unknown"}}]
+
+------------------------------------------------
 EXAMPLES (not to copy directly):
 
-Example A:
+Example (Lookup):
 {{
-  "entities": ["IT139IU"],
-  "sub_questions": ["What are the prerequisites for IT139IU?"],
-  "kg_queries": [
-    {{"op":"lookup_prereqs", "course_ids":["IT139IU"]}}
-  ]
+  "entities": ["IT140IU"],
+  "sub_questions": ["IT140IU is offered in which semester(s) and how many credits?"],
+  "kg_queries": [{{"op":"lookup_course","course_ids":["IT140IU"]}}]
 }}
 
-Example B:
+Example (Prereqs):
 {{
-  "entities": ["IT001IU","IT153IU"],
-  "sub_questions": [
-    "What courses has the student completed?",
-    "What courses remain to graduate?"
-  ],
-  "kg_queries": [
-    {{"op":"lookup_course","course_ids":["IT001IU","IT153IU"]}},
-    {{"op":"plan_curriculum", "constraints":"limit 18 credits/semester"}}
-  ]
+  "entities": ["IT172IU"],
+  "sub_questions": ["What are the prerequisites for IT172IU?"],
+  "kg_queries": [{{"op":"lookup_prereqs","course_ids":["IT172IU"]}}]
+}}
+
+Example (Planning):
+{{
+  "entities": ["MA001IU","IT149IU"],
+  "sub_questions": ["Build a multi-semester plan from HK2 to HK8 to graduate."],
+  "kg_queries": [{{"op":"plan_curriculum"}}]
 }}
 
 ------------------------------------------------
