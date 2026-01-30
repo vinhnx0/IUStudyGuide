@@ -5,9 +5,9 @@ logging.basicConfig(level=logging.INFO)
 import time
 from typing import Dict, Any, Optional, Tuple, List
 
-from retriever.hybrid import HybridRetriever
-from retriever.alias_normalizer import AliasNormalizer
-from ingest.build_index import IndexBuilder
+from app.retriever.hybrid import HybridRetriever
+from app.retriever.alias_normalizer import AliasNormalizer
+from app.ingest.build_index import IndexBuilder
 
 from app.llm import local_generate
 
