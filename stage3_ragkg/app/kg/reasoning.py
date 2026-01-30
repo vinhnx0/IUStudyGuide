@@ -77,9 +77,13 @@ def build_prereq_edges_evidence(
 def _compact_course_node(node: CourseNode) -> Dict[str, Any]:
     """Return compact, token-aware course metadata for prompts."""
     name = None
+    name_en = None
+    name_vi = None
     try:
         if isinstance(getattr(node, "name", None), dict):
             # Prefer English if present; fallback to any available.
+            name_en = getattr(node, "name", None).get("en")
+            name_vi = getattr(node, "name", None).get("vi")
             name = node.name.get("en") or node.name.get("vi")
             if not name and node.name:
                 name = next(iter(node.name.values()))
@@ -101,6 +105,8 @@ def _compact_course_node(node: CourseNode) -> Dict[str, Any]:
     out: Dict[str, Any] = {
         "id": getattr(node, "id", None),
         "name": name,
+        "name_vi": (name_vi.strip() if isinstance(name_vi, str) and name_vi.strip() else None),
+        "name_en": (name_en.strip() if isinstance(name_en, str) and name_en.strip() else None),
         "credits": credits_total,
         "semester": semesters,
         "compulsory": compulsory,
