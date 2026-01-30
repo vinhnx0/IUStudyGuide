@@ -34,7 +34,6 @@ Thumbs.db
 storage/
 data/processed/
 *.pkl
-*.jsonl
 
 # Qdrant embedded storage (if created elsewhere)
 qdrant_storage/
