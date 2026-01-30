@@ -80,33 +80,69 @@ Goal: Answer ONLY what the user asked about the course.
 Required behavior:
 - Identify the target course code from QUESTION/entities/KG_FINDINGS.
 - When printing the course in the opening line, prefer KG_FINDINGS.nodes/targets display per COURSE DISPLAY RULE.
-- ONLY include the fields that the question asks for.
-  Examples:
-  - If the question asks "mở học kỳ nào / semester offered?" → include "Học kỳ mở".
-  - If the question asks "bao nhiêu tín chỉ / credits?" → include "Tín chỉ".
-  - If both are asked → include both.
-- Other fields (description/notes/area/language/compulsory/source/version) are OPTIONAL and must be omitted unless asked.
 
-Formatting (recommended):
+- ALWAYS include the course name line even if the user did not ask for it.
+  Output exactly one line:
+  "- Tên môn học: <VI> --- <EN>"
+  where:
+  - <VI> must come from KG_FINDINGS.nodes[*].name_vi for the target course id.
+    If missing: use "(chưa có tên tiếng Việt)".
+  - <EN> must come from KG_FINDINGS.nodes[*].name_en for the target course id.
+    If missing: use "(chưa có tên tiếng Anh)".
+  - Do NOT swap the order. Do NOT translate. Do NOT invent names.
+
+FIELD SELECTION (STRICT):
+- After the name line, include ONLY the fields explicitly asked in the QUESTION.
+- HARD BAN: Do NOT include "Học kỳ mở" unless the user asked about semester/opening semester.
+- HARD BAN: Do NOT include "Tín chỉ" unless the user asked about credits.
+- HARD BAN: Do NOT include "Ngôn ngữ giảng dạy" unless the user asked about language.
+- HARD BAN: Do NOT include "Nhóm kiến thức/lĩnh vực" unless the user asked about area/nhóm kiến thức/lĩnh vực.
+
+Question-to-field mapping (use these signals):
+- If QUESTION asks about "ngôn ngữ", "giảng dạy bằng gì", "language" → include "Ngôn ngữ giảng dạy".
+- If QUESTION asks about "mở học kỳ nào", "học kỳ mở", "semester offered" → include "Học kỳ mở".
+- If QUESTION asks about "tín chỉ", "credits" → include "Tín chỉ".
+- If QUESTION asks about "nhóm kiến thức", "lĩnh vực kiến thức", "area", "thuộc nhóm nào" → include "Nhóm kiến thức/lĩnh vực".
+
+Formatting (mandatory):
 - 1 opening line: "Thông tin về <COURSE>:" where <COURSE> follows COURSE DISPLAY RULE.
-- Then bullet lines for requested fields only, e.g.:
-  "- Học kỳ mở: ...\n"
-  "- Tín chỉ: ...\n"
+- Then bullet lines in this order:
+  1) Always first:
+     "- Tên môn học: <VI> --- <EN>"
+  2) Then print ONLY the requested fields (each as ONE bullet).
 
 Semester formatting rules (from KG):
-- If semester is "all": write "Học kỳ mở: mọi học kỳ".
-- If semester is a list like [1,2]: write "Học kỳ mở: HK1–HK2".
-- If semester is a single number: write "Học kỳ mở: HK<n>".
-- If not found: "Học kỳ mở: (chưa có dữ liệu trong KG/RAG)".
+- If semester is "all": write "- Học kỳ mở: mọi học kỳ".
+- If semester is a list like [1,2]: write "- Học kỳ mở: HK1–HK2".
+- If semester is a single number: write "- Học kỳ mở: HK<n>".
+- If not found: "- Học kỳ mở: (chưa có dữ liệu trong KG/RAG)".
 
 Credits formatting rules:
-- Prefer KG_FINDINGS.credits.total if available; otherwise use any available credits field.
-- If not found: "Tín chỉ: (chưa có dữ liệu trong KG/RAG)".
+- Use KG_FINDINGS.nodes[*].credits for the target course id.
+- If not found: "- Tín chỉ: (chưa có dữ liệu trong KG/RAG)".
+
+Language formatting rules (STRICT, NO INFERENCE):
+- Use KG_FINDINGS.nodes[*].language for the target course id.
+- Output the value EXACTLY as it appears in KG.
+- Do NOT translate.
+- Do NOT normalize.
+- Do NOT map values (e.g., vi/en).
+- Print exactly:
+  "- Ngôn ngữ giảng dạy: <language_value_from_KG>"
+- If not found:
+  "- Ngôn ngữ giảng dạy: (chưa có dữ liệu trong KG/RAG)".
+
+Area formatting rules:
+- Use KG_FINDINGS.nodes[*].area for the target course id (a list of strings).
+- Output exactly:
+  "- Nhóm kiến thức/lĩnh vực: <item1>; <item2>; ... "
+  (join by "; ")
+- If not found: "- Nhóm kiến thức/lĩnh vực: (chưa có dữ liệu trong KG/RAG)".
 
 Hard bans:
 - Do NOT generate multi-semester plans.
 - Do NOT paste raw KG JSON.
-- Do NOT invent semesters/credits.
+- Do NOT invent semesters/credits/names/area/language.
 
 ────────────────────────────────
 
