@@ -274,6 +274,95 @@ def _precompute_prereq_ordering_line(kg_payload: Dict[str, Any], target: str) ->
     return f"Thứ tự tối thiểu gợi ý: {chain}"
 
 
+def render_prereq_path_v1(kg_payload: dict, target_course: str) -> str:
+    """Deterministically render PREREQ_PATH_V1 answer (no LLM).
+
+    Enforces EXACTLY 4 paragraphs separated by EXACTLY ONE blank line.
+    """
+    tgt = (target_course or "").strip().upper()
+    if not tgt:
+        return ""
+
+    payload = kg_payload or {}
+    targets = payload.get("targets") or []
+
+    tmatch = None
+    for t in targets:
+        if isinstance(t, dict) and str(t.get("course", "")).strip().upper() == tgt:
+            tmatch = t
+            break
+
+    # Build node name map for fallbacks
+    node_name: dict[str, str] = {}
+    for n in payload.get("nodes") or []:
+        if not isinstance(n, dict):
+            continue
+        cid = str(n.get("id", "")).strip().upper()
+        if not cid:
+            continue
+        node_name[cid] = (n.get("name") or "").strip()
+
+    course_name = ""
+    course_display = ""
+    required_display: list[str] = []
+    required_codes: list[str] = []
+
+    if isinstance(tmatch, dict):
+        course_name = (tmatch.get("course_name") or "").strip()
+        course_display = (tmatch.get("course_display") or "").strip()
+        required_display = [
+            str(x).strip()
+            for x in (tmatch.get("required_courses_display") or [])
+            if str(x).strip()
+        ]
+        required_codes = [
+            str(x).strip().upper()
+            for x in (tmatch.get("required_courses") or [])
+            if str(x).strip()
+        ]
+
+    if not course_display:
+        nm = course_name or node_name.get(tgt, "")
+        course_display = f"{tgt} ({nm})" if nm else tgt
+
+    # Normalize required_display; if missing, build from required_codes + node names
+    cleaned_required_display: list[str] = []
+    if required_display:
+        for s in required_display:
+            if s and s not in cleaned_required_display:
+                cleaned_required_display.append(s)
+    else:
+        seen: set[str] = set()
+        for cc in required_codes:
+            if not cc or cc in seen:
+                continue
+            seen.add(cc)
+            nm = node_name.get(cc, "")
+            cleaned_required_display.append(f"{cc} ({nm})" if nm else cc)
+
+    # P3 ordering line: deterministic precompute (levels)
+    ordering_line = _precompute_prereq_ordering_line(payload, tgt)
+
+    has_prereqs = bool(cleaned_required_display)
+
+    if not has_prereqs:
+        # No prerequisites
+        p1 = f"{course_display} không yêu cầu môn tiên quyết."
+        p2 = "Danh sách tiên quyết (bắt buộc): Không có"
+        p3 = f"Thứ tự tối thiểu gợi ý: Bạn có thể đăng ký {tgt} ngay (theo đúng lộ trình/điều kiện đăng ký của chương trình)."
+    else:
+        # Has prerequisites
+        p1 = f"Để học được {course_display}, bạn cần hoàn thành các môn tiên quyết sau."
+        p2 = "Danh sách tiên quyết (bắt buộc): " + ", ".join(cleaned_required_display)
+        if not ordering_line:
+            ordering_line = f"Thứ tự tối thiểu gợi ý: Hoàn thành tất cả các môn tiên quyết trước khi đăng ký {tgt}."
+        p3 = ordering_line
+
+    p4 = "Citations: [Curriculum Knowledge Graph]"
+
+    return "\n\n".join([p1, p2, p3, p4]).strip() + "\n"
+
+
 def _log_kg_metrics(*, tag: str, kg_payload: Dict[str, Any], findings_json: str, req_id: Any = None) -> None:
     """Log KG_FINDINGS metrics (no content)."""
     meta = (kg_payload or {}).get("meta") or {}
@@ -503,6 +592,159 @@ def _render_index_rebuild_ui(cfg: Dict[str, Any], status: Dict[str, Any]) -> Non
     st.stop()
 
 
+def _safe_float(x, default=0.0):
+    try:
+        return float(x)
+    except Exception:
+        return default
+
+
+def _chunk_meta(chunk: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(chunk, dict):
+        return {}
+    meta = chunk.get("meta") or chunk.get("metadata") or {}
+    return meta if isinstance(meta, dict) else {}
+
+
+def render_evidence_panels(*, rag_chunks: List[Dict[str, Any]] | None, kg_payload: Dict[str, Any] | None) -> None:
+    # -------------------------
+    # Evidence (RAG)
+    # -------------------------
+    rag_chunks = rag_chunks or []
+    with st.expander(f"Evidence (RAG) — top {len(rag_chunks)} chunks", expanded=False):
+        if not rag_chunks:
+            st.caption("No retrieval evidence captured for this request.")
+        else:
+            for i, ch in enumerate(rag_chunks, start=1):
+                meta = _chunk_meta(ch)
+                title = (meta.get("title") or meta.get("source_title") or meta.get("doc_title") or "").strip()
+                source = (meta.get("source") or meta.get("path") or meta.get("doc_id") or meta.get("id") or "").strip()
+                score = _safe_float(ch.get("score", None), default=_safe_float(meta.get("score", None), 0.0))
+                text = (ch.get("text") or ch.get("content") or "").strip()
+
+                label = title or source or f"chunk_{i}"
+                st.markdown(f"**#{i}. {label}**  \n`score={score:.4f}`")
+                if source and title:
+                    st.caption(f"source: {source}")
+                elif source:
+                    st.caption(f"source: {source}")
+
+                # tránh UI quá dài
+                if len(text) > 2500:
+                    st.code(text[:2500] + "\n...\n[TRUNCATED]", language="text")
+                else:
+                    st.code(text, language="text")
+
+                st.divider()
+
+    # -------------------------
+    # Evidence (KG)
+    # -------------------------
+    with st.expander("Evidence (KG)", expanded=False):
+        if not kg_payload:
+            st.caption("No KG evidence captured for this request.")
+            return
+
+        meta = (kg_payload.get("meta") or {}) if isinstance(kg_payload, dict) else {}
+        if isinstance(meta, dict) and meta:
+            node_count = meta.get("node_count", 0)
+            edge_count = meta.get("edge_count", 0)
+            truncated_nodes = meta.get("truncated_nodes", False)
+            truncated_edges = meta.get("truncated_edges", False)
+            seeds = meta.get("seed_courses", [])
+            st.caption(
+                f"nodes={node_count} | edges={edge_count} | "
+                f"truncated_nodes={bool(truncated_nodes)} | truncated_edges={bool(truncated_edges)} | "
+                f"seed_courses={seeds}"
+            )
+
+        targets = kg_payload.get("targets") or []
+        edges = kg_payload.get("edges") or []
+        nodes = kg_payload.get("nodes") or []
+
+        # Targets: "enough" detail to verify
+        st.markdown("### Targets")
+        if not targets:
+            st.caption("No targets extracted.")
+        else:
+            for t in targets[:8]:
+                if not isinstance(t, dict):
+                    continue
+                course = t.get("course_display") or t.get("course") or ""
+                reqs = t.get("required_courses_display") or t.get("required_courses") or []
+                lvls = t.get("prereq_required_by_level_display") or t.get("prereq_required_by_level") or []
+                st.markdown(f"- **{course}**")
+                if reqs:
+                    st.markdown(f"  - required: {', '.join(reqs) if isinstance(reqs, list) else str(reqs)}")
+
+                if lvls:
+                    # lvls can be:
+                    # - list[str] (rare)
+                    # - list[dict] like {"level": 1, "courses_display": ["A (..)", "B(..)"]}
+                    # - anything else
+                    if isinstance(lvls, list):
+                        parts = []
+                        for item in lvls:
+                            if isinstance(item, str):
+                                s = item.strip()
+                                if s:
+                                    parts.append(s)
+                                continue
+
+                            if isinstance(item, dict):
+                                lvl = item.get("level")
+                                cds = item.get("courses_display") or item.get("courses") or []
+                                if isinstance(cds, list):
+                                    cds_str = ", ".join([str(x) for x in cds if str(x).strip()])
+                                else:
+                                    cds_str = str(cds)
+
+                                if cds_str.strip():
+                                    parts.append(f"Level {lvl}: {cds_str}" if lvl is not None else cds_str)
+                                continue
+
+                            # fallback for odd types
+                            parts.append(str(item))
+
+                        st.markdown("  - by level: " + " | ".join(parts))
+                    else:
+                        st.markdown("  - by level: " + str(lvls))
+
+        # Edges: course <- prereq
+        st.markdown("### Edges (course ⇐ prereq)")
+        if edges:
+            preview_edges = []
+            for e in edges[:80]:
+                if not isinstance(e, dict):
+                    continue
+                preview_edges.append(
+                    {"course": e.get("course", ""), "prereq": e.get("prereq", "")}
+                )
+            st.dataframe(preview_edges, use_container_width=True, hide_index=True)
+        else:
+            st.caption("No edges extracted.")
+
+        # Nodes: only key fields
+        st.markdown("### Nodes (preview)")
+        if nodes:
+            preview_nodes = []
+            for n in nodes[:60]:
+                if not isinstance(n, dict):
+                    continue
+                preview_nodes.append(
+                    {
+                        "id": n.get("id", ""),
+                        "name": n.get("name", ""),
+                        "semester": n.get("semester", ""),
+                        "credits": n.get("credits", ""),
+                        "is_elective": n.get("is_elective", ""),
+                    }
+                )
+            st.dataframe(preview_nodes, use_container_width=True, hide_index=True)
+        else:
+            st.caption("No nodes extracted.")
+
+
 def main() -> None:
     cfg = get_cfg()
     import app.llm as _llm
@@ -545,6 +787,10 @@ def main() -> None:
     st.session_state.setdefault("last_plan_meta", {})
     st.session_state.setdefault("last_answer", "")
 
+    # Evidence snapshots for UI
+    st.session_state.setdefault("last_rag_chunks", [])
+    st.session_state.setdefault("last_kg_payload_fast", None)
+    st.session_state.setdefault("last_kg_payload_slow", None)
     # Basic request timing (end-to-end runtime per user submission)
     st.session_state.setdefault("req_id", None)
     st.session_state.setdefault("req_start_time", None)
@@ -578,6 +824,14 @@ def main() -> None:
             st.warning("Please enter a question.")
             return
 
+        # Reset outputs from previous run   
+        st.session_state.last_question = question_clean
+        st.session_state.last_plan = None
+        st.session_state.last_plan_meta = {}
+        st.session_state.last_answer = ""
+        st.session_state.last_rag_chunks = []
+        st.session_state.last_kg_payload = None
+
         entities = detect_entities(question_clean, alias_normalizer=alias_normalizer)
 
         decomp = decompose_question(question_clean, cfg)
@@ -608,7 +862,7 @@ def main() -> None:
         )
 
         st.session_state.last_route_decision = asdict(decision)
-
+        st.session_state.last_rag_chunks = list(chunks or [])
         is_planning = decision.route == "SLOW" and decision.intent == "course_planning"
         st.session_state.planning_active = bool(is_planning)
         st.session_state.planning_question = question_clean
@@ -616,10 +870,6 @@ def main() -> None:
         st.session_state.planning_entities = list(decision.entities or [])
         st.session_state.planning_decomp = decomp
         st.session_state.planning_retrieval_scores = retrieval_scores
-        st.session_state.last_answer = False
-
-        st.session_state.last_plan = None
-        st.session_state.last_plan_meta = {}
 
         if not is_planning:
             # Build compact KG_FINDINGS: relevant nodes + edges (+ derived per-target fields).
@@ -630,7 +880,7 @@ def main() -> None:
                 include_prereq_depth=2,
                 include_target_findings=True,
             )
-
+            st.session_state.last_kg_payload = kg_payload
             findings_json = json.dumps(kg_payload, ensure_ascii=False, indent=2)
 
             _log_kg_metrics(
@@ -672,51 +922,69 @@ def main() -> None:
                     precomputed_prereq_ordering or "(empty)",
                 )
 
-            prompt = synth_template.format(
-                template_id=template_id,
-                evidence=evidence_block,
-                question=question_clean,
-                entities=json.dumps(decision.entities or [], ensure_ascii=False),
-                intent=decision.intent,
-                route=decision.route,
-                confidence=f"{decision.confidence:.3f}",
-                signals=", ".join(decision.signals or []),
-                kg_findings=findings_json,
-                curriculum_plan="",
-                precomputed_prereq_ordering=precomputed_prereq_ordering,
-            )
+            if template_id == "PREREQ_PATH_V1":
+                answer = render_prereq_path_v1(kg_payload, target_course)
+                out_res = output_guard.check(answer)
+                if not out_res.get("ok", True):
+                    st.error("Output rejected by guardrails.")
+                    st.session_state.last_answer = ""
+                else:
+                    st.session_state.last_answer = answer
 
-            logger.debug(
-                "LLM prompt breakdown | template=%d question=%d evidence=%d kg=%d TOTAL=%d",
-                _safe_len(synth_template),
-                _safe_len(question_clean),
-                _safe_len(evidence_block),
-                _safe_len(findings_json),
-                _safe_len(prompt),
-            )
+                # End timing right before the UI renders the final answer.
+                if not st.session_state.get("req_logged", True):
+                    start_t = st.session_state.get("req_start_time")
+                    if isinstance(start_t, (int, float)):
+                        elapsed = time.perf_counter() - float(start_t)
+                        logger.info("Total request runtime: %.3f seconds", elapsed)
+                    st.session_state.req_logged = True
 
-            answer = llm_generate_text(prompt, cfg, caller="synthesis")
-            answer = strip_think(answer)
-
-            out_res = output_guard.check(answer)
-            if not out_res.get("ok", True):
-                st.error("Output rejected by guardrails.")
-                st.session_state.last_answer = ""
             else:
-                st.session_state.last_answer = answer
+                prompt = synth_template.format(
+                    template_id=template_id,
+                    evidence=evidence_block,
+                    question=question_clean,
+                    entities=json.dumps(decision.entities or [], ensure_ascii=False),
+                    intent=decision.intent,
+                    route=decision.route,
+                    confidence=f"{decision.confidence:.3f}",
+                    signals=", ".join(decision.signals or []),
+                    kg_findings=findings_json,
+                    curriculum_plan="",
+                    precomputed_prereq_ordering=precomputed_prereq_ordering,
+                )
 
-            # End timing right before the UI renders the final answer.
-            if not st.session_state.get("req_logged", True):
-                start_t = st.session_state.get("req_start_time")
-                if isinstance(start_t, (int, float)):
-                    elapsed = time.perf_counter() - float(start_t)
-                    logger.info("Total request runtime: %.3f seconds", elapsed)
-                st.session_state.req_logged = True
+            if template_id != "PREREQ_PATH_V1":
+                logger.debug(
+                    "LLM prompt breakdown | template=%d question=%d evidence=%d kg=%d TOTAL=%d",
+                    _safe_len(synth_template),
+                    _safe_len(question_clean),
+                    _safe_len(evidence_block),
+                    _safe_len(findings_json),
+                    _safe_len(prompt),
+                )
 
-    if st.session_state.last_route_decision is not None:
-        st.subheader("Route Decision")
-        st.json(st.session_state.last_route_decision)
+                answer = llm_generate_text(prompt, cfg, caller="synthesis")
+                answer = strip_think(answer)
 
+                out_res = output_guard.check(answer)
+                if not out_res.get("ok", True):
+                    st.error("Output rejected by guardrails.")
+                    st.session_state.last_answer = ""
+                else:
+                    st.session_state.last_answer = answer
+
+                # End timing right before the UI renders the final answer.
+                if not st.session_state.get("req_logged", True):
+                    start_t = st.session_state.get("req_start_time")
+                    if isinstance(start_t, (int, float)):
+                        elapsed = time.perf_counter() - float(start_t)
+                        logger.info("Total request runtime: %.3f seconds", elapsed)
+                    st.session_state.req_logged = True
+
+    # ----------------------------
+    # SLOW planning UI
+    # ----------------------------
     if st.session_state.planning_active:
         st.subheader("Planning Track")
 
@@ -763,6 +1031,7 @@ def main() -> None:
             st.session_state.last_plan = curriculum_plan
             st.session_state.last_plan_meta = planner_meta
 
+            # Build KG evidence for plan (compact, no raw dump)
             findings_json = "(no plan)"
             curriculum_plan_str = ""
             if curriculum_plan is not None:
@@ -803,6 +1072,9 @@ def main() -> None:
                         "kg_truncated_edges": bool((kg_payload.get("meta") or {}).get("truncated_edges", False)),
                     }
                     st.session_state.last_plan_meta = planner_meta
+                    st.session_state.last_kg_payload = kg_payload
+                    st.session_state.last_rag_chunks = []  # planning currently doesn't use retrieval evidence
+
                 except Exception as exc:
                     logger.warning("Failed to build KG_FINDINGS for planning: %s", exc)
 
@@ -830,34 +1102,29 @@ def main() -> None:
                 _safe_len(prompt),
             )
 
-            # Planning synthesis remains disabled by design (no LLM output for planning).
-            # answer = llm_generate_text(prompt, cfg)
-            # answer = strip_think(answer)
-
-            # out_res = output_guard.check(answer)
-            # if not out_res.get("ok", True):
-            #     st.error("Output rejected by guardrails.")
-            #     st.session_state.last_answer = ""
-            # else:
-            #     st.session_state.last_answer = answer
-
             # End timing right before returning the final answer to UI state.
             if not st.session_state.get("req_logged", True) and st.session_state.get("req_start_time") is not None:
                 elapsed = time.perf_counter() - float(st.session_state.req_start_time)
                 logger.info("Total request runtime: %.3f seconds", elapsed)
                 st.session_state.req_logged = True
 
-    if st.session_state.last_plan is not None:
-        render_plan(st.session_state.last_plan)
+    if "last_question" in st.session_state:
+        st.markdown("### Question")
+        st.markdown(st.session_state.last_question)
 
-    if st.session_state.last_plan_meta:
-        st.subheader("Planner meta")
-        st.json(st.session_state.last_plan_meta)
+    if st.session_state.last_plan is not None:
+        st.subheader("Answer")
+        render_plan(st.session_state.last_plan)
 
     if st.session_state.last_answer:
         st.subheader("Answer")
         st.write(st.session_state.last_answer)
 
+    if not st.session_state.planning_active:
+        render_evidence_panels(
+            rag_chunks=st.session_state.get("last_rag_chunks"),
+            kg_payload=st.session_state.get("last_kg_payload"),
+        )
 
 if __name__ == "__main__":
     main()
