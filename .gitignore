@@ -32,6 +32,7 @@ Thumbs.db
 
 # --- Data / generated artifacts (Stage 3) ---
 storage/
+eval/
 data/processed/
 *.pkl
 
